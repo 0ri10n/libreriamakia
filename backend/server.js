@@ -15,7 +15,7 @@ app.listen(PORT, () => console.log(` Servidor corriendo en puerto ${PORT}`));
 
 const User = require('./models/users'); // Asegúrate de que la ruta sea correcta
 
-//PRUEBAS PARA VERIFICAR CONEXIÓN, LUEGO LAS QUITAN
+//PRUEBAS PARA VERIFICAR CONEXIÓN, EVIDENCIA, LAS TABLAS ESTAN EN MONGO
 
 app.post('/test-user', async (req, res) => {
   try {

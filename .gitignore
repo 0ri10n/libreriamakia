@@ -1,18 +1,30 @@
-# Dependencias (esta carpeta es pesadísima y se regenera con npm install)
+
 node_modules/
+**/node_modules/
 
-# Variables de entorno (¡AQUÍ ESTÁ TU CONTRASEÑA DE MONGO! Nunca la subas)
+
 .env
+.env.*
 
-# Logs de errores
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Archivos de sistema (Mac y Windows)
+
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Carpetas de compilación o distribución (si usaras TypeScript)
+
 dist/
 build/
+**/dist/
+**/build/
+
+
+.vscode/
+.idea/
+*.swp
