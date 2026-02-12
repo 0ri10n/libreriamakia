@@ -1,21 +1,21 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const connectDB = require('./mongoose');
+
+const app = express();
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const proteger = require('./middleware/authMiddleware');
-
-const cors = require('cors');
-app.use(cors());
-
-const app = express();
 
 // Conectar BD
 connectDB();
 
+app.use(cors());
 // Middleware para leer JSON
 app.use(express.json());
+
+const proteger = require('./middleware/authMiddleware');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(` Servidor corriendo en puerto ${PORT}`));
