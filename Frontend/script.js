@@ -1,15 +1,20 @@
-// Al cargar la página, verificar si ya existe un token
-window.onload = () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        alert('Ya tienes una sesión activa.');
-        // window.location.href = 'dashboard.html'; // Redirigir si ya está logueado
-    }
-};
+// --- LÓGICA DE INTERCAMBIO DE VISTAS ---
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('showRegister').addEventListener('click', () => {
+    loginForm.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+});
+
+document.getElementById('showLogin').addEventListener('click', () => {
+    registerForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+});
+
+// --- LÓGICA DE LOGIN ---
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -19,21 +24,44 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
-
         const data = await response.json();
 
         if (response.ok) {
-            // Guardamos el JWT de forma segura en el navegador
             localStorage.setItem('token', data.token);
-            alert('Acceso concedido. Bienvenido al sistema.');
-
-            // Redirección opcional a la página principal de la biblioteca
-            // window.location.href = 'dashboard.html';
+            alert('Acceso concedido.');
         } else {
-            alert('Error de seguridad: ' + (data.msg || 'Acceso denegado'));
+            alert('Error: ' + data.msg);
         }
     } catch (error) {
-        console.error('Error en la comunicación con el Backend:', error);
-        alert('No se pudo establecer conexión con el servidor de autenticación.');
+        alert('Error de conexión');
+    }
+});
+
+// --- LÓGICA DE REGISTRO ---
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            alert('Cuenta creada con éxito.');
+            // Volver al login tras registrarse
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        } else {
+            alert('Error: ' + data.msg);
+        }
+    } catch (error) {
+        alert('Error de conexión');
     }
 });

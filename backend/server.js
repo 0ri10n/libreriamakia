@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, '../Frontend'))); //
 
 // Ruta principal para mostrar el Login
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Frontend', 'index.html')); //
+  res.sendFile(path.join(__dirname, '../Frontend', 'index.html')); //
 });
 
 const PORT = process.env.PORT || 3000;
@@ -61,6 +61,29 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// RUTA DE REGISTRO
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    //Verificar si el usuario ya existe
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
+
+    //Crear nuevo usuario (La encriptación ocurre en el modelo users.js)
+    user = new User({ name, email, password });
+    await user.save(); //
+
+    //Generar token de una vez para que entre directo
+    const payload = { user: { id: user.id } };
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' }, (err, token) => {
+      if (err) throw err;
+      res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
+    });
+  } catch (err) {
+    res.status(500).send('Error al registrar usuario');
+  }
+});
 
 //PRUEBAS PARA VERIFICAR CONEXIÓN, EVIDENCIA, LAS TABLAS ESTAN EN MONGO
 
@@ -94,6 +117,6 @@ app.get('/test-book', proteger, async (req, res) => {
     await testBook.save();
     res.send("¡Libro creado con éxito en la base de datos!");
   } catch (err) {
-    res.status(500).send("❌ Error en el modelo de libros: " + err.message);
+    res.status(500).send("Error en el modelo de libros: " + err.message);
   }
 });

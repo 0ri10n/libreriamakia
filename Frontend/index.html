@@ -4,24 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Biblioteca</title>
+    <title>Acceso - Biblioteca MAKIA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="login-container">
-        <h2>Iniciar Sesión</h2>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="email">Correo electrónico</label>
-                <input type="email" id="email" placeholder="ejemplo@biblioteca.com" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-            </div>
-            <button type="submit">Entrar</button>
-        </form>
+    <div class="stars-background"></div>
+
+    <div class="main-container">
+        <header class="header-section">
+            <p class="subtitle">Biblioteca</p>
+            <h1 class="main-title">MAKIA</h1>
+            <p class="slogan">Donde la fantasía, se hace realidad</p>
+        </header>
+
+        <main class="auth-container">
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Correo electrónico" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                    <button type="button" class="btn-secondary" id="showRegister">Registrarse</button>
+                </div>
+            </form>
+
+            <form id="registerForm" class="hidden">
+                <div class="input-group">
+                    <input type="text" id="regName" placeholder="Nombre completo" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="regEmail" placeholder="Correo electrónico" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="regPassword" placeholder="Contraseña" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Crear Cuenta</button>
+                    <button type="button" class="btn-secondary" id="showLogin">Volver al Login</button>
+                </div>
+            </form>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>

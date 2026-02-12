@@ -1,72 +1,103 @@
-/* Configuración general */
+/* Reset y Configuración Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #05050a;
+    color: white;
+    font-family: 'Times New Roman', serif;
+    overflow: hidden;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f2f5;
 }
 
-/* Contenedor principal */
-.login-container {
-    background: #ffffff;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+/* Fondo de Estrellas (Simulado) */
+.stars-background {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 350px;
+    height: 100%;
+    background-image: radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 40px);
+    background-size: 100px 100px;
+    z-index: -1;
 }
 
-h2 {
+.main-container {
     text-align: center;
-    color: #1c1e21;
-    margin-bottom: 1.5rem;
-}
-
-/* Grupos de entrada */
-.input-group {
-    margin-bottom: 1rem;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: #606770;
-}
-
-input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #dddfe2;
-    border-radius: 6px;
-    box-sizing: border-box;
+    max-width: 500px;
+}
+
+/* Header MAKIA */
+.subtitle {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.main-title {
+    font-size: 5rem;
+    letter-spacing: 8px;
+    margin: 5px 0;
+    font-weight: normal;
+}
+
+.slogan {
+    font-style: italic;
     font-size: 1rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
 }
 
-input:focus {
-    outline: none;
-    border-color: #1877f2;
-    box-shadow: 0 0 0 2px #e7f3ff;
+/* Formulario */
+.auth-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 20px;
 }
 
-/* Botón de acceso */
-button {
-    width: 100%;
+.input-group input {
+    width: 80%;
     padding: 12px;
-    background-color: #1877f2;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
     color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Botones */
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
     margin-top: 1rem;
 }
 
-button:hover {
-    background-color: #166fe5;
+.btn-primary,
+.btn-secondary {
+    padding: 12px 30px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Clase para ocultar elementos */
+.hidden {
+    display: none !important;
 }
