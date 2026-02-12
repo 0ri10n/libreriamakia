@@ -5,6 +5,7 @@ const protegerRuta = (req, res, next) => {
     const token = req.header('Authorization');
 
     // Si no hay token, denegar acceso
+    
     if (!token) {
         return res.status(401).json({ msg: 'No hay token, permiso denegado' });
     }
@@ -19,4 +20,4 @@ const protegerRuta = (req, res, next) => {
     }
 };
 
-module.exports = protegerRuta;
+module.exports = protegerRuta; 
