@@ -57,7 +57,8 @@ app.post('/login', async (req, res) => {
       }
     );
   } catch (err) {
-    res.status(500).send('Error en el servidor');
+    console.error("ERROR DETECTADO:", err);
+    res.status(500).json({ msg: 'Error en el servidor: ' + err.message });
   }
 });
 
@@ -81,7 +82,8 @@ app.post('/register', async (req, res) => {
       res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
     });
   } catch (err) {
-    res.status(500).send('Error al registrar usuario');
+    console.error("ERROR DETECTADO:", err);
+    res.status(500).json({ msg: 'Error en el servidor: ' + err.message });
   }
 });
 
