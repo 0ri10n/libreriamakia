@@ -2,6 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./mongoose');
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const proteger = require('./middleware/authMiddleware');
+
+const cors = require('cors');
+app.use(cors());
+
 const app = express();
 
 // Conectar BD
@@ -14,6 +21,36 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(` Servidor corriendo en puerto ${PORT}`));
 
 const User = require('./models/users'); // Asegúrate de que la ruta sea correcta
+
+// RUTA DE LOGIN
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    //Verificar si el usuario existe
+    let user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: 'Usuario no encontrado' });
+
+    //Comparar contraseña encriptada
+    const esCorrecta = await bcrypt.compare(password, user.password);
+    if (!esCorrecta) return res.status(400).json({ msg: 'Contraseña incorrecta' });
+
+    //Crear y firmar el JWT
+    const payload = { user: { id: user.id } };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
+  } catch (err) {
+    res.status(500).send('Error en el servidor');
+  }
+});
+
 
 //PRUEBAS PARA VERIFICAR CONEXIÓN, EVIDENCIA, LAS TABLAS ESTAN EN MONGO
 
@@ -33,7 +70,7 @@ app.post('/test-user', async (req, res) => {
 
 const Book = require('./models/books');
 
-app.get('/test-book', async (req, res) => {
+app.get('/test-book', proteger, async (req, res) => {
   try {
     const testBook = new Book({
       title: "El Psicoanalista",
@@ -45,7 +82,7 @@ app.get('/test-book', async (req, res) => {
     });
 
     await testBook.save();
-    res.send("📖 ¡Libro creado con éxito en la base de datos!");
+    res.send("¡Libro creado con éxito en la base de datos!");
   } catch (err) {
     res.status(500).send("❌ Error en el modelo de libros: " + err.message);
   }
