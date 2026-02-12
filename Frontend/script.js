@@ -1,18 +1,35 @@
-// --- LÓGICA DE INTERCAMBIO DE VISTAS ---
+// ELEMENTOS DEL DOM
+const landingOptions = document.getElementById('landing-options');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
-document.getElementById('showRegister').addEventListener('click', () => {
-    loginForm.classList.add('hidden');
+// --- NAVEGACIÓN ENTRE VISTAS ---
+
+//De Inicio a Login
+document.getElementById('btnGoToLogin').addEventListener('click', () => {
+    landingOptions.classList.add('hidden'); // Ocultar botones iniciales
+    loginForm.classList.remove('hidden');   // Mostrar form login
+});
+
+//De Inicio a Registro
+document.getElementById('btnGoToRegister').addEventListener('click', () => {
+    landingOptions.classList.add('hidden');
     registerForm.classList.remove('hidden');
 });
 
-document.getElementById('showLogin').addEventListener('click', () => {
-    registerForm.classList.add('hidden');
-    loginForm.classList.remove('hidden');
+//Volver (Cancelar Login)
+document.getElementById('backFromLogin').addEventListener('click', () => {
+    loginForm.classList.add('hidden');
+    landingOptions.classList.remove('hidden'); // Mostrar botones iniciales de nuevo
 });
 
-// --- LÓGICA DE LOGIN ---
+//Volver (Cancelar Registro)
+document.getElementById('backFromRegister').addEventListener('click', () => {
+    registerForm.classList.add('hidden');
+    landingOptions.classList.remove('hidden');
+});
+
+// --- LÓGICA DE BACKEND (LOGIN) ---
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -37,7 +54,7 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-// --- LÓGICA DE REGISTRO ---
+// --- LÓGICA DE BACKEND (REGISTRO) ---
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('regName').value;
@@ -55,7 +72,7 @@ registerForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             localStorage.setItem('token', data.token);
             alert('Cuenta creada con éxito.');
-            // Volver al login tras registrarse
+            // Volver al inicio o loguear directo
             registerForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
         } else {

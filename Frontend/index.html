@@ -19,7 +19,15 @@
         </header>
 
         <main class="auth-container">
-            <form id="loginForm">
+
+            <div id="landing-options">
+                <div class="button-group">
+                    <button type="button" class="btn-primary" id="btnGoToLogin">Iniciar Sesión</button>
+                    <button type="button" class="btn-secondary" id="btnGoToRegister">Registrarse</button>
+                </div>
+            </div>
+
+            <form id="loginForm" class="hidden fade-in">
                 <div class="input-group">
                     <input type="email" id="email" placeholder="Correo electrónico" required>
                 </div>
@@ -27,12 +35,12 @@
                     <input type="password" id="password" placeholder="Contraseña" required>
                 </div>
                 <div class="button-group">
-                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
-                    <button type="button" class="btn-secondary" id="showRegister">Registrarse</button>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                    <button type="button" class="btn-secondary" id="backFromLogin">Cancelar</button>
                 </div>
             </form>
 
-            <form id="registerForm" class="hidden">
+            <form id="registerForm" class="hidden fade-in">
                 <div class="input-group">
                     <input type="text" id="regName" placeholder="Nombre completo" required>
                 </div>
@@ -44,9 +52,10 @@
                 </div>
                 <div class="button-group">
                     <button type="submit" class="btn-primary">Crear Cuenta</button>
-                    <button type="button" class="btn-secondary" id="showLogin">Volver al Login</button>
+                    <button type="button" class="btn-secondary" id="backFromRegister">Cancelar</button>
                 </div>
             </form>
+
         </main>
     </div>
     <script src="script.js"></script>
