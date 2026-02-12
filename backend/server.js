@@ -17,6 +17,16 @@ app.use(express.json());
 
 const proteger = require('./middleware/authMiddleware');
 
+const path = require('path'); //
+
+// Servir archivos estáticos de la carpeta Frontend
+app.use(express.static(path.join(__dirname, '../Frontend'))); //
+
+// Ruta principal para mostrar el Login
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../Frontend', 'index.html')); //
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(` Servidor corriendo en puerto ${PORT}`));
 
