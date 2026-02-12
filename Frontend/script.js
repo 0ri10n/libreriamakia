@@ -7,8 +7,8 @@ const registerForm = document.getElementById('registerForm');
 
 //De Inicio a Login
 document.getElementById('btnGoToLogin').addEventListener('click', () => {
-    landingOptions.classList.add('hidden'); // Ocultar botones iniciales
-    loginForm.classList.remove('hidden');   // Mostrar form login
+    landingOptions.classList.add('hidden'); 
+    loginForm.classList.remove('hidden');  
 });
 
 //De Inicio a Registro
@@ -20,7 +20,7 @@ document.getElementById('btnGoToRegister').addEventListener('click', () => {
 //Volver (Cancelar Login)
 document.getElementById('backFromLogin').addEventListener('click', () => {
     loginForm.classList.add('hidden');
-    landingOptions.classList.remove('hidden'); // Mostrar botones iniciales de nuevo
+    landingOptions.classList.remove('hidden'); 
 });
 
 //Volver (Cancelar Registro)
@@ -36,7 +36,7 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('/login', {
+        const response = await fetch('https://libreriamakia.onrender.com/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -62,7 +62,7 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('regPassword').value;
 
     try {
-        const response = await fetch('/register', {
+        const response = await fetch('https://libreriamakia.onrender.com/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
