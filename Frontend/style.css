@@ -8,7 +8,7 @@
 body {
     background-color: #05050a;
     color: white;
-    font-family: 'Times New Roman', serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
     overflow: hidden;
     height: 100vh;
     display: flex;
@@ -16,79 +16,87 @@ body {
     align-items: center;
 }
 
-/* Fondo de Estrellas (Simulado) */
+/* Fondo de Estrellas Animado (Contenedor) */
 .stars-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 40px);
-    background-size: 100px 100px;
     z-index: -1;
+    background-color: #05050a; /* Color de fondo base (negro profundo) */
+    overflow: hidden;
+}
+
+/* Ajuste para que el dibujo (Canvas) ocupe todo el espacio */
+.stars-background canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .main-container {
     text-align: center;
     width: 100%;
-    max-width: 500px;
+    max-width: 800px;
 }
 
 /* Header MAKIA */
 .subtitle {
-    font-size: 1.5rem;
-    letter-spacing: 2px;
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
 }
 
 .main-title {
-    font-size: 5rem;
-    letter-spacing: 8px;
-    margin: 5px 0;
-    font-weight: normal;
+    font-size: 9rem;
+    letter-spacing: 15px;
+    margin: 10px 0;
+    line-height: 1;
 }
 
 .slogan {
-    font-style: italic;
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    opacity: 0.8;
+    font-size: 1.6rem; /* Frase de abajo */
+    margin-bottom: 3.5rem;
+    opacity: 0.9;
 }
 
 /* Formulario */
 .auth-container {
     background: rgba(255, 255, 255, 0.05);
-    padding: 1.5rem;
-    border-radius: 20px;
+    padding: 3.5rem;
+    border-radius: 40px;
 }
 
 .input-group input {
-    width: 80%;
-    padding: 12px;
-    margin-bottom: 1rem;
+    width: 100%;
+    padding: 20px !important;
+    margin-bottom: 0 !important;
     border: 1px solid rgba(255, 255, 255, 0.3);
     background: transparent;
     color: white;
-    border-radius: 10px;
-    text-align: center;
+    border-radius: 15px;
+    text-align: left !important;
+    font-size: 1rem !important; 
 }
 
 /* Botones */
 .button-group {
     display: flex;
-    gap: 15px;
+    gap: 25px;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
 }
 
 .btn-primary,
 .btn-secondary {
-    padding: 12px 30px;
+    padding: 18px 50px;
     border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 25px;
+    border-radius: 35px;
     background: rgba(255, 255, 255, 0.2);
     color: white;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.3rem;
     transition: 0.3s;
 }
 
@@ -114,5 +122,1643 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* --- VISTA DE USUARIO (DASHBOARD) --- */
+
+#user-dashboard {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f8f9fa; /* Fondo gris muy claro */
+    color: #333; /* Texto oscuro para legibilidad */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
+/* Sidebar Estilo Makia */
+.sidebar {
+    width: 250px;
+    background-color: white;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.logo-area {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: #000;
+}
+
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+    transition: 0.3s;
+}
+
+.menu-btn.active {
+    background-color: #8a4f9e; /* Morado Makia */
+    color: white;
+}
+
+
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 80px;     
+    background-color: white;
+}
+
+.user-header {
+    display: flex;
+    justify-content: flex-end; /* Empuja el ícono de perfil a la derecha */
+    align-items: center;
+    width: 100%;
+    margin-bottom: 25px;
+    padding-right: 20px;
+}
+
+.user-profile-circle {
+    background-color: #8a4f9e; /* Morado Makia */
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(138, 79, 158, 0.3);
+}
+
+/* Ajuste para que el buscador flote sobre el banner */
+.hero-card {
+    position: relative;
+    height: 320px; /* Altura similar a la maqueta */
+    background: #05050a;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Alinea el buscador hacia la parte inferior */
+    padding-bottom: 35px; /* Espacio desde el borde inferior del banner */
+    overflow: visible; /* Importante para que la sombra del buscador se vea */
+}
+
+/* Buscador flotante: Fidelidad absoluta */
+.search-container-overlay {
+    position: absolute;
+    bottom: -35px; /* Posición exacta sobre el borde inferior */
+    width: 85%;
+    max-width: 700px;
+    background: white;
+    border-radius: 50px;
+    display: flex;
+    padding: 10px 30px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12); /* Sombra suave profesional */
+    z-index: 20;
+}
+
+.search-container-overlay input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-family: 'Segoe UI', Tahoma, sans-serif; /* Tipografía limpia */
+    background: transparent;
+}
+
+.search-container-overlay button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #8a4f9e;
+}
+
+.catalog-section {
+    margin-top: 60px; 
+    padding: 0 20px;  
+}
+
+.catalog-section h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 25px;
+    text-align: left; 
+}
+
+
+.categories-pills {
+    display: flex;
+    gap: 15px; 
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: flex-start; 
+}
+
+
+.pill {
+    padding: 10px 24px;
+    border-radius: 10px; 
+    border: none;
+    background-color: #f1e6f5;
+    color: #4a4a4a;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', sans-serif; 
+}
+
+.pill.active {
+    background-color: #8a4f9e;
+    color: white;
+    font-weight: 600;
+}
+
+/* Grilla de Libros */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.book-card {
+    background: white;
+    padding: 10px;
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.book-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.book-card h4 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+.book-card p {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+/* --- VISTA MIS LIBROS --- */
+
+/* Cabecera de la sección (Título + Botón) */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-top: 40px;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    color: #111;
+    font-weight: 700;
+}
+
+.btn-action {
+    background-color: #e0ccff; /* Lila claro */
+    color: #4a0072; /* Morado oscuro */
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.btn-action:hover {
+    background-color: #d1b3ff;
+}
+
+/* Lista de Tarjetas Horizontales */
+.loans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.loan-card {
+    display: flex;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    align-items: flex-start;
+    gap: 25px;
+    transition: transform 0.2s;
+}
+
+.loan-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.loan-card img {
+    width: 100px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.loan-info {
+    flex: 1;
+}
+
+.loan-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.loan-desc {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.loan-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 0.85rem;
+    color: #888;
+    align-items: center;
+}
+
+.status-badge {
+    background-color: #f0fdf4;
+    color: #166534; /* Verde para "En progreso" */
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.status-badge.urgent {
+    background-color: #fee2e2;
+    color: #991b1b; 
+}
+
+/* --- ESTILOS DEL MODAL --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    animation: fadeIn 0.3s;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-modal:hover { color: #000; }
+
+#selectLibros {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin: 20px 0;
+    font-size: 1rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.modal-info {
+    font-size: 0.85rem;
+    color: #666;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}   
+
+/* --- ESTILOS DEL PANEL ADMINISTRADOR --- */
+.admin-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.admin-container h3 {
+    margin-bottom: 20px;
+    color: #8a4f9e;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-grid input, .form-grid select, textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Segoe UI', sans-serif;
+    width: 100%;
+}
+
+textarea {
+    width: 100%;
+    resize: vertical;
+}
+
+/* ============================================ */
+/* PANEL DE ADMINISTRADOR */
+/* ============================================ */
+
+#admin-dashboard {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    color: #333;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.admin-wrapper {
+    padding: 30px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header del admin */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/* Tarjetas de estadísticas */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #d4c5f9 0%, #b8a1e8 100%);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(138, 79, 158, 0.15);
+}
+
+.stat-card h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #2d1b47;
+    margin-bottom: 5px;
+}
+
+.stat-card p {
+    font-size: 0.95rem;
+    color: #4a2d6b;
+    font-weight: 500;
+}
+
+/* Controles (Título + Buscador) */
+.admin-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.admin-controls h2 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.search-box-admin {
+    display: flex;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 8px 20px;
+    width: 350px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-box-admin input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: transparent;
+}
+
+.search-box-admin button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #8a4f9e;
+}
+
+/* Tabs de navegación */
+.admin-tabs {
+    display: flex;
+    gap: 40px;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 12px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.tab-btn.active {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #8a4f9e;
+}
+
+/* Botones de acción */
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.btn-delete-bulk {
+    background-color: #8a4f9e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.btn-delete-bulk:hover {
+    background-color: #6f3d7f;
+}
+
+.btn-add {
+    background-color: #8a4f9e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.btn-add:hover {
+    background-color: #6f3d7f;
+}
+
+/* Contenido de tabs */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Lista de items del admin */
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Tarjeta de libro en admin */
+.admin-book-card {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    align-items: center;
+    transition: box-shadow 0.3s;
+}
+
+.admin-book-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.admin-book-card img {
+    width: 100px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-book-info {
+    flex: 1;
+}
+
+.admin-book-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+}
+
+.admin-book-info p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.admin-book-meta {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.admin-book-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.admin-book-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-edit-admin,
+.btn-delete-admin {
+    background-color: #e0ccff;
+    color: #4a0072;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.btn-edit-admin:hover {
+    background-color: #d1b3ff;
+}
+
+.btn-delete-admin:hover {
+    background-color: #ffcccc;
+    color: #cc0000;
+}
+
+/* ============================================ */
+/* MODAL DE EDICIÓN DE LIBRO */
+/* ============================================ */
+
+.modal-content-admin {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 900px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content-admin h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+}
+
+.form-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row-admin {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+}
+
+.form-col-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-col-left label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-col-left input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.preview-image {
+    width: 100%;
+    height: 350px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    border: 2px dashed #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.preview-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.form-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-col-right h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.form-col-right label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-col-right label::after {
+    content: ' *';
+    color: #8a4f9e;
+}
+
+.form-col-right input,
+.form-col-right select,
+.form-col-right textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Segoe UI', sans-serif;
+    width: 100%;
+}
+
+.form-col-right textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.char-count {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: -10px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-cancel-admin {
+    background-color: #8a4f9e;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-cancel-admin:hover {
+    background-color: #6f3d7f;
+}
+
+.btn-save-admin {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-save-admin:hover {
+    background-color: #d0d0d0;
+}
+
+/* ============================================ */
+/* VISTA DE PRÉSTAMOS Y USUARIOS (Tablas) */
+/* ============================================ */
+
+.admin-table-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.admin-table-card h4 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.admin-table-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.admin-table-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+
+/* --- ESTILOS MODAL PRÉSTAMO AVANZADO --- */
+.modal-content-loan {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    animation: fadeIn 0.3s;
+}
+
+/* Header (Barra superior) */
+.loan-header {
+    padding: 15px 30px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loan-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.loan-header.success-bg { background-color: #f3e5f5; } /* Fondo lila éxito */
+.loan-header.error-bg { background-color: #fbecec; }   /* Fondo rojizo error */
+
+/* Botones del Header */
+.btn-back { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+.btn-cancel-loan {
+    background: #8a4f9e; color: white; border: none;
+    padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;
+}
+.btn-confirm-loan {
+    background: #e0e0e0; color: #333; border: none;
+    padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: 600;
+}
+.btn-close-gray {
+    background: #ddd; color: #333; border: none;
+    padding: 8px 20px; border-radius: 5px; cursor: pointer;
+}
+
+/* Cuerpo del modal (2 columnas) */
+.loan-body {
+    display: flex;
+    padding: 40px;
+    gap: 40px;
+}
+
+/* Columna Izquierda: Portada */
+.loan-book-cover img {
+    width: 220px;
+    height: 330px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Columna Derecha: Formulario */
+.loan-details-form, .loan-details-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.loan-details-form h3, .loan-details-text h3 {
+    font-size: 1rem;
+    color: #111;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.loan-details-form label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.loan-details-form input {
+    padding: 10px;
+    border: 1px solid #dcdcdc; /* Borde suave */
+    border-radius: 6px;
+    color: #555;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fff;
+}
+
+/* Solo lectura para que parezca deshabilitado pero legible */
+.loan-details-form input[readonly] {
+    background-color: #fff; 
+    border-color: #d8b4e2; /* Borde lila suave como en la imagen */
+    color: #8a4f9e;
+}
+
+/* Textos de Éxito/Error */
+.info-text { font-size: 0.9rem; color: #555; line-height: 1.5; margin-top: 15px; }
+.error-text { font-size: 0.95rem; color: #333; line-height: 1.5; }
+
+
+/* --- ESTILOS NUEVOS ADMIN (Diseño UI Moderno) --- */
+
+.admin-wrapper {
+    background-color: #fff; /* Fondo blanco limpio */
+    min-height: 100vh;
+    padding: 20px 60px;
+}
+
+/* Estadísticas (Tarjetas Lilas Grandes) */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background-color: #e0ccff; /* Lila suave imagen */
+    padding: 40px 20px;
+    border-radius: 15px;
+    text-align: center;
+    color: #2d1b47;
+}
+
+.stat-card h2 { font-size: 3.5rem; margin: 0; font-weight: 700; }
+.stat-card p { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+
+/* Controles y Tabs */
+.admin-controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-box-rounded {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    width: 300px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-box-rounded input { border: none; outline: none; width: 100%; }
+.search-box-rounded button { background: none; border: none; cursor: pointer; }
+
+.admin-tabs-nav {
+    display: flex;
+    gap: 50px;
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    padding-bottom: 10px;
+    cursor: pointer;
+    color: #666;
+}
+
+.tab-link.active {
+    color: #000;
+    font-weight: bold;
+    border-bottom: 3px solid #8a4f9e;
+}
+
+.tab-separator {
+    height: 1px;
+    background-color: #ddd;
+    width: 100%;
+    margin-bottom: 30px;
+    margin-top: -2px; /* Pegado a los tabs */
+}
+
+/* Botones de Acción (Morados) */
+.action-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-purple-solid {
+    background-color: #8a4f9e;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-purple-outline {
+    background-color: #8a4f9e;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+/* LISTA DE ITEMS (Diseño Horizontal Exacto) */
+.admin-list-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    background: white;
+}
+
+.admin-item-img {
+    width: 80px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.admin-item-info {
+    flex: 1;
+}
+
+.admin-item-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #000; }
+.admin-item-info p { margin: 0; font-size: 0.85rem; color: #666; }
+.admin-item-stats { margin-top: 10px; font-size: 0.8rem; color: #888; display: flex; gap: 15px; }
+
+.admin-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-icon-square {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    background-color: #e0ccff; /* Cuadrito lila */
+    color: #4a0072;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.btn-icon-square:hover { background-color: #d1b3ff; }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* --- ESTILOS HEADER MODAL ADMIN (Diseño 100% Fiel) --- */
+
+.modal-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid #f0f0f0; Opcional si quieres línea */
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-back-icon {
+    background: none;
+    border: none;
+    font-size: 2.5rem; /* Flecha grande */
+    cursor: pointer;
+    color: #333;
+    line-height: 0.8;
+    padding: 0;
+}
+
+.header-left-group h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #000;
+    font-weight: 700;
+}
+
+.header-right-group {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-cancel-header {
+    background-color: #8a4f9e; /* Morado */
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-save-header {
+    background-color: #dcdcdc; /* Gris */
+    color: #333;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-save-header:hover { background-color: #c0c0c0; }
+
+/* Estilo para input con ícono (Link) */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-left: 40px; /* Espacio para el ícono a la izquierda */
+    border: 1px solid #8a4f9e; /* Borde morado como en la imagen */
+    color: #8a4f9e;
+}
+
+.input-with-icon .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    filter: hue-rotate(260deg); /* Truco para hacer el emoji morado */
+}
+
+
+
+/* ========================================= */
+/* --- MOTOR DE TEMAS Y MODAL DE PERFIL --- */
+/* ========================================= */
+
+:root {
+    /* Color por defecto (Morado MAKIA) */
+    --primary-color: #8a4f9e;
+    --secondary-color: #e0ccff;
+}
+
+/* Sobreescribimos las clases existentes para usar las variables dinámicas */
+.btn-primary, .btn-purple-solid, .btn-cancel-header, .pill.active, .menu-btn.active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.user-profile-circle {
+    background-color: var(--primary-color) !important;
+}
+
+.search-container-overlay button {
+    color: var(--primary-color) !important;
+}
+
+.btn-purple-outline, .btn-action {
+    background-color: var(--secondary-color) !important;
+    color: #333 !important; /* Texto oscuro para legibilidad en colores claros */
+    font-weight: bold;
+}
+
+.btn-icon-square {
+    background-color: var(--secondary-color) !important;
+    color: #333 !important;
+}
+
+.form-col-right label::after {
+    color: var(--primary-color) !important;
+}
+
+.loan-header.success-bg {
+    background-color: var(--secondary-color) !important;
+}
+
+h2 { color: var(--primary-color); } /* Títulos generales */
+.admin-header h1, .section-header h2 { color: #1a1a1a; } /* Excepción títulos negros */
+
+.profile-info {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px auto;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.color-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-btn:hover { transform: scale(1.1); }
+.color-btn.active { border-color: #333; transform: scale(1.1); }
+
+.btn-logout {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-logout:hover { background-color: #ffcdd2; }
+
+
+/* ======================================================= */
+/* --- CORRECCIÓN MAESTRA DE COLORES (Final) --- */
+/* ======================================================= */
+
+:root {
+    --primary-color: #8a4f9e;
+    --secondary-color: #e0ccff;
+    --text-on-primary: #ffffff; /* Variable para el color del texto */
+}
+
+/* 1. Elementos con FONDO FUERTE (Usan color primario) */
+.btn-primary, 
+.btn-purple-solid, 
+.btn-cancel-header, 
+.pill.active, 
+.menu-btn.active,
+.user-profile-circle,
+.profile-avatar-large,
+.search-container-overlay button,
+.form-col-right label::after,
+#btnVolverUsuario { /* Forzamos el botón de regresar */
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-on-primary) !important; /* Usamos la variable de texto */
+}
+
+/* 2. Elementos con FONDO SUAVE (Usan color secundario) */
+.btn-purple-outline, 
+.btn-action,
+.btn-icon-square,
+.loan-header.success-bg,
+.stat-card,
+.pill:hover, /* Filtros al pasar el mouse */
+.admin-list-item > div[style*="width:50px"] {
+    background-color: var(--secondary-color) !important;
+    color: #222 !important; /* Siempre oscuro para leerse bien */
+    border: none !important;
+}
+
+/* 3. Correcciones Específicas */
+/* Títulos y textos que deben tomar el color del tema */
+h2, .admin-controls h2, .catalog-section h2 { 
+    color: var(--primary-color) !important; 
+}
+
+/* Filtros inactivos (Fondo gris suave por defecto) */
+.pill {
+    background-color: #f1f1f1 !important;
+    color: #666 !important;
+}
+
+/* Excepciones de texto (Iconos y etiquetas sin fondo) */
+.search-container-overlay button,
+.form-col-right label::after {
+    background-color: transparent !important;
+    color: var(--primary-color) !important;
+}
+
+/* Corrección: Hacer que las tarjetas de estadísticas usen el color del tema */
+.stat-card {
+    background: var(--secondary-color) !important; /* Usa el color bajito dinámico */
+    color: #000 !important; /* Texto negro para que se lea */
+}
+
+/* Asegurar que los números dentro de las tarjetas sean negros */
+.stat-card h2 {
+    color: #000 !important;
+}
+
+/* Asegurar que el subtítulo sea oscuro */
+.stat-card p {
+    color: #333 !important;
+}
+
+
+/* ======================================================= */
+/* --- SISTEMA DE ANIMACIONES FLUIDAS (DASHBOARD) --- */
+/* ======================================================= */
+
+/* 1. Definición de movimientos */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 2. Aplicar a las Secciones Principales */
+/* Cada vez que cambias entre Inicio y Mis Libros, la sección hará un suave zoom */
+.content-area section:not(.hidden) {
+    animation: popIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* 3. Tarjetas de Libros y Préstamos (Base para la cascada) */
+.book-card, .loan-card {
+    opacity: 0; /* Empiezan invisibles */
+    animation: fadeInUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Para el hover */
+}
+
+/* 4. Hover Elástico y Moderno */
+.book-card:hover, .loan-card:hover {
+    transform: translateY(-8px) scale(1.02); /* Se levanta y crece un poco */
+    box-shadow: 0 15px 30px rgba(138, 79, 158, 0.15); /* Sombra morada suave */
+    z-index: 1;
+}
+
+/* 5. Modales con entrada de rebote */
+.modal-content, .modal-content-admin {
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote */
+}
+
+/* 6. Botones reactivos (Micro-interacciones) */
+.btn-primary, .btn-action, .menu-btn, .pill, .color-btn {
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-primary:active, .btn-action:active, .color-btn:active {
+    transform: scale(0.95); /* Efecto de presionar */
+}
+
+/* Pills (Filtros) */
+.pill:hover {
+    transform: translateY(-2px);
+}
+
+
+/* ========================================= */
+/* --- AJUSTES MATERIAL SYMBOLS --- */
+/* ========================================= */
+
+/* Regla base para alinear iconos con texto */
+.material-symbols-outlined {
+    vertical-align: middle;
+    font-size: 24px; /* Tamaño estándar */
+    line-height: 1;
+}
+
+/* Ajuste específico para botones del menú lateral */
+.menu-btn .material-symbols-outlined {
+    margin-right: 8px;
+    font-size: 22px;
+}
+
+/* Ajuste para botones de acción en admin (lápiz, basura) */
+.btn-icon-square .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Ajuste para el buscador */
+.search-container-overlay button .material-symbols-outlined {
+    font-size: 28px;
+}
+
+
+/* ======================================================= */
+/* --- RESPONSIVE DESIGN (MÓVIL Y TABLET) --- */
+/* ======================================================= */
+
+/* TABLETS Y PANTALLAS MEDIANAS (Max 1024px) */
+@media (max-width: 1024px) {
+    .main-title { font-size: 6rem; letter-spacing: 10px; }
+    .stats-cards { grid-template-columns: repeat(2, 1fr); } /* 2 columnas en vez de 3 */
+    .admin-wrapper { padding: 20px; }
+}
+
+/* MÓVILES (Max 768px) */
+@media (max-width: 768px) {
+
+    /* 1. AJUSTES GENERALES */
+    body {
+        overflow-y: auto; /* Permitir scroll vertical en móviles */
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        width: 90%;
+        padding: 20px 0;
+    }
+
+    /* 2. PANTALLA DE LOGIN (Hacerla compacta) */
+    .main-title { 
+        font-size: 4rem; /* Reducir drásticamente el tamaño */
+        letter-spacing: 5px; 
+    }
+    .subtitle { font-size: 1.5rem; }
+    .slogan { font-size: 1rem; margin-bottom: 2rem; }
+    
+    .auth-container {
+        padding: 2rem 1.5rem; /* Menos relleno */
+        border-radius: 25px;
+    }
+
+    /* Botones uno debajo del otro para facilitar el toque */
+    .button-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+
+    /* 3. DASHBOARD (Transformar Sidebar en Barra Superior) */
+    #user-dashboard {
+        flex-direction: column; /* Apilar elementos verticalmente */
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid #eee;
+        flex-direction: row; /* Logo a la izq, menú a la derecha */
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50; /* Que se quede arriba al scrollear */
+    }
+
+    .logo-area { margin-bottom: 0; }
+    .nav-logo { height: 40px; width: auto; } /* Ajustar logo */
+
+    .menu-options {
+        flex-direction: row; /* Botones en fila */
+        gap: 10px;
+    }
+    
+    /* En móvil, ocultamos el texto del menú y dejamos solo iconos para ahorrar espacio */
+    .menu-btn { padding: 10px; font-size: 0; } 
+    .menu-btn span { margin: 0 !important; font-size: 24px !important; }
+
+    .content-area {
+        padding: 20px;
+        overflow: visible; /* Quitar scroll interno */
+    }
+
+    /* 4. MODALES (Que quepan en pantalla) */
+    .modal-content, .modal-content-admin {
+        width: 95%;
+        padding: 20px;
+        max-height: 85vh; /* Evitar que se salga de la pantalla */
+        overflow-y: auto; /* Scroll dentro del modal si es necesario */
+    }
+
+    /* Arreglar el modal de Préstamo (Imagen arriba, info abajo) */
+    #viewLoanForm > div {
+        flex-direction: column;
+        align-items: center;
+    }
+    #loanBookImage { width: 120px; margin-bottom: 20px; }
+
+    /* 5. ADMIN PANEL */
+    .stats-cards { grid-template-columns: 1fr; } /* Tarjetas una por una */
+    
+    .admin-controls-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    .search-box-rounded, .search-box-admin { width: 100%; }
+    
+    /* Formulario de Admin en una sola columna */
+    .form-row-admin {
+        grid-template-columns: 1fr;
+    }
+    .preview-image { height: 200px; }
+    
+    /* Navegación de Tabs scrolleable */
+    .admin-tabs-nav {
+        gap: 20px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        width: 100%;
+        justify-content: flex-start;
     }
 }
