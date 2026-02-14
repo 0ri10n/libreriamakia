@@ -20,7 +20,6 @@ app.use(cors());
 app.use(express.json());  
 
 // Servir archivos estáticos del Frontend
-// Importante: Verifica que la carpeta se llame 'Frontend' exactamente
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
@@ -77,7 +76,6 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     }
 });
 
-// --- RUTAS DE LIBROS ---
 app.get('/api/books', async (req, res) => {
     try {
         const { busqueda, categoria } = req.query;
@@ -94,9 +92,9 @@ app.get('/api/books', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- CORRECCIÓN PARA RENDER (SINTAXIS RUTA COMODÍN) ---
-// Cambiamos '*' por '(.*)' para evitar el PathError en versiones nuevas
-app.get('(.*)', (req, res) => {
+// --- SOLUCIÓN DEFINITIVA AL ERROR DE RENDER ---
+// Usamos una expresión regular pura /.*/ para capturar todo sin usar paréntesis de captura conflictivos
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
 
