@@ -285,8 +285,11 @@ async function cargarMisPrestamos() {
                     <h3>${libro.title}</h3>
                     <p class="loan-desc">${libro.description || ''}</p>
                     <div class="loan-meta">
-                        <span>📅 Devolver: ${fecha}</span>
-                        <span class="status-badge">Activo</span>
+                        <span style="display: flex; align-items: center; gap: 5px; color: #555;">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span> 
+                            Devolver: ${fecha}
+                        </span>
+                        <span class="status-badge" style="margin-top:5px;">Activo</span>
                     </div>
                 </div>`;
             lista.appendChild(card);
@@ -608,7 +611,7 @@ async function cargarTablaPrestamos() {
             div.className = 'admin-list-item';
             div.innerHTML = `
                 <div style="width:50px; height:50px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:15px; font-size:1.5rem;">
-                    📅
+                    
                 </div>
                 <div class="admin-item-info">
                     <h3>${libro.title}</h3>
