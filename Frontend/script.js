@@ -631,9 +631,11 @@ async function cargarTablaPrestamos() {
 // 4. Lógica para botón "Guardar" en Agregar Usuario
 // Buscamos el botón dentro del modal específico para asignarle la función real
 const btnGuardarUsuario = document.querySelector('#modalAgregarUsuario .btn-save-header');
+
 if (btnGuardarUsuario) {
+    // Sobrescribimos el 'onclick' del HTML (el alert) con esta función real
     btnGuardarUsuario.onclick = async function() {
-        // Obtenemos los inputs por orden ya que no tienen ID en el HTML
+        // Obtenemos los inputs por posición (0: Nombre, 1: Email, 2: Password)
         const inputs = document.querySelectorAll('#modalAgregarUsuario input');
         const name = inputs[0].value;
         const email = inputs[1].value;
@@ -642,7 +644,7 @@ if (btnGuardarUsuario) {
         if (!name || !email || !password) return alert("Todos los campos son obligatorios");
 
         try {
-            // Usamos la ruta /register que ya existe en el back para crear usuarios
+            // Usamos la ruta /register que YA EXISTE en tu server.js
             const res = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -653,11 +655,13 @@ if (btnGuardarUsuario) {
             if (res.ok) {
                 alert("Usuario creado correctamente");
                 document.getElementById('modalAgregarUsuario').classList.add('hidden');
+                
                 // Limpiar campos
                 inputs.forEach(i => i.value = '');
-                // Recargar tabla si estamos en ella
-                cargarTablaUsuarios();
-                cargarAdminDashboard(); // Actualizar contadores
+                
+                // Recargar tabla si la función existe
+                if (typeof cargarTablaUsuarios === 'function') cargarTablaUsuarios();
+                if (typeof cargarAdminDashboard === 'function') cargarAdminDashboard();
             } else {
                 alert("Error: " + data.msg);
             }
@@ -667,19 +671,24 @@ if (btnGuardarUsuario) {
 
 // 5. Lógica para botón "Guardar" en Agregar Préstamo
 const btnGuardarPrestamo = document.querySelector('#modalAgregarPrestamo .btn-save-header');
+
 if (btnGuardarPrestamo) {
     btnGuardarPrestamo.onclick = async function() {
         const inputs = document.querySelectorAll('#modalAgregarPrestamo input');
+        // El input 0 es UserID, el 1 es BookID
         const userId = inputs[0].value;
         const bookId = inputs[1].value;
         const token = localStorage.getItem('token');
 
-        if (!userId || !bookId) return alert("Se requieren ambos IDs");
+        if (!userId || !bookId) return alert("Se requieren ambos IDs (Usuario y Libro)");
 
         try {
-            // NOTA: Tu backend actual en /api/loans usa req.user.id (token).
-            // Para admin, lo ideal sería pasar el userId en el body.
-            // Enviamos ambos para intentar compatibilidad.
+            // Usamos la ruta /api/loans que YA EXISTE en tu server.js
+            // NOTA: Tu backend espera que el usuario venga del token (req.user.id),
+            // pero para admin lo ideal es pasar el ID manual.
+            // Si el backend es estricto, esto creará el préstamo a nombre del ADMIN (tú).
+            // Si el backend fue actualizado para aceptar 'userId' en el body, usará ese.
+            
             const res = await fetch(`${API_URL}/api/loans`, {
                 method: 'POST',
                 headers: { 
@@ -690,11 +699,11 @@ if (btnGuardarPrestamo) {
             });
 
             if (res.ok) {
-                alert("Préstamo creado");
+                alert("Préstamo creado con éxito");
                 document.getElementById('modalAgregarPrestamo').classList.add('hidden');
                 inputs.forEach(i => i.value = '');
-                cargarTablaPrestamos();
-                cargarAdminDashboard();
+                if (typeof cargarTablaPrestamos === 'function') cargarTablaPrestamos();
+                if (typeof cargarAdminDashboard === 'function') cargarAdminDashboard();
             } else {
                 const data = await res.json();
                 alert("Error: " + (data.msg || "No se pudo crear"));

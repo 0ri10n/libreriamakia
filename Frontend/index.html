@@ -307,49 +307,6 @@
         </form>
     </div>
 </div>
-<script src="script.js"></script>
-
-<div id="modalAgregarPrestamo" class="modal hidden">
-    <div class="modal-content-admin" style="max-width: 500px;">
-        <div class="modal-admin-header">
-            <h2 style="margin:0;">Agregar Préstamo</h2>
-            <div class="header-right-group">
-                <button class="btn-cancel-header" onclick="document.getElementById('modalAgregarPrestamo').classList.add('hidden')">Cancelar</button>
-                <button class="btn-save-header" onclick="alert('Funcionalidad pendiente de backend')">Guardar</button>
-            </div>
-        </div>
-        <div class="form-admin">
-            <label style="font-weight:600;">ID del Usuario *</label>
-            <input type="text" placeholder="Ej: 64b8f..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
-            
-            <label style="font-weight:600; margin-top:15px;">ID del Libro *</label>
-            <input type="text" placeholder="Ej: 64c9a..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
-        </div>
-    </div>
-</div>
-
-<div id="modalAgregarUsuario" class="modal hidden">
-    <div class="modal-content-admin" style="max-width: 500px;">
-        <div class="modal-admin-header">
-            <h2 style="margin:0;">Agregar Usuario</h2>
-            <div class="header-right-group">
-                <button class="btn-cancel-header" onclick="document.getElementById('modalAgregarUsuario').classList.add('hidden')">Cancelar</button>
-                <button class="btn-save-header" onclick="alert('Funcionalidad pendiente de backend')">Guardar</button>
-            </div>
-        </div>
-        <div class="form-admin">
-            <label style="font-weight:600;">Nombre Completo *</label>
-            <input type="text" placeholder="Nombre" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
-            
-            <label style="font-weight:600; margin-top:15px;">Correo Electrónico *</label>
-            <input type="email" placeholder="email@ejemplo.com" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
-            
-            <label style="font-weight:600; margin-top:15px;">Contraseña *</label>
-            <input type="password" placeholder="******" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
-        </div>
-    </div>
-</div>
-
     <div id="modalPerfilUsuario" class="modal hidden">
         <div class="modal-content-admin" style="max-width: 400px;">
             <div class="modal-admin-header">
@@ -534,6 +491,50 @@
             }
         }
     </script>
+
+    <script src="script.js"></script>
+
+<div id="modalAgregarPrestamo" class="modal hidden">
+    <div class="modal-content-admin" style="max-width: 500px;">
+        <div class="modal-admin-header">
+            <h2 style="margin:0;">Agregar Préstamo</h2>
+            <div class="header-right-group">
+                <button class="btn-cancel-header" onclick="document.getElementById('modalAgregarPrestamo').classList.add('hidden')">Cancelar</button>
+                <button class="btn-save-header" onclick="alert('Funcionalidad pendiente de backend')">Guardar</button>
+            </div>
+        </div>
+        <div class="form-admin">
+            <label style="font-weight:600;">ID del Usuario *</label>
+            <input type="text" placeholder="Ej: 64b8f..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+            
+            <label style="font-weight:600; margin-top:15px;">ID del Libro *</label>
+            <input type="text" placeholder="Ej: 64c9a..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+        </div>
+    </div>
+</div>
+
+<div id="modalAgregarUsuario" class="modal hidden">
+    <div class="modal-content-admin" style="max-width: 500px;">
+        <div class="modal-admin-header">
+            <h2 style="margin:0;">Agregar Usuario</h2>
+            <div class="header-right-group">
+                <button class="btn-cancel-header" onclick="document.getElementById('modalAgregarUsuario').classList.add('hidden')">Cancelar</button>
+                <button class="btn-save-header" onclick="alert('Funcionalidad pendiente de backend')">Guardar</button>
+            </div>
+        </div>
+        <div class="form-admin">
+            <label style="font-weight:600;">Nombre Completo *</label>
+            <input type="text" placeholder="Nombre" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+            
+            <label style="font-weight:600; margin-top:15px;">Correo Electrónico *</label>
+            <input type="email" placeholder="email@ejemplo.com" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+            
+            <label style="font-weight:600; margin-top:15px;">Contraseña *</label>
+            <input type="password" placeholder="******" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+        </div>
+    </div>
+</div>
+
 </body>
 
 </html>
