@@ -1,7 +1,7 @@
 // URL de API corregida para Render
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000' 
-    : '';
+    : 'https://libreriamakia-j7w6.onrender.com/';
 
 // ELEMENTOS DEL DOM
 const landingOptions = document.getElementById('landing-options');
@@ -131,62 +131,70 @@ async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
     
-    // Contadores visuales
     const statLibros = document.getElementById('statLibros');
     const statPrestamos = document.getElementById('statPrestamos');
     const statUsuarios = document.getElementById('statUsuarios');
 
     if (!lista) return;
-    lista.innerHTML = '<p style="text-align:center">Cargando panel...</p>';
+    lista.innerHTML = '<p style="text-align:center">Actualizando panel...</p>';
 
-    // 1. Cargar Contadores de USUARIOS (Independiente)
-    fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
-        .then(res => res.json())
-        .then(users => { if(statUsuarios) statUsuarios.innerText = users.length || 0; })
-        .catch(e => console.error("Error usuarios:", e));
-
-    // 2. Cargar Contadores de PRÉSTAMOS (Independiente)
-    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
-        .then(res => res.json())
-        .then(loans => { if(statPrestamos) statPrestamos.innerText = loans.length || 0; })
-        .catch(e => console.error("Error préstamos:", e));
-
-    // 3. Cargar LIBROS y llenar la tabla principal
     try {
-        const res = await fetch(`${API_URL}/api/books`);
-        const libros = await res.json();
+        // Lanzamos las 3 peticiones en paralelo y esperamos a que TODAS terminen (éxito o error)
+        const resultados = await Promise.allSettled([
+            fetch(`${API_URL}/api/books`),
+            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}),
+            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
+        ]);
 
-        if(statLibros) statLibros.innerText = libros.length || 0;
-        lista.innerHTML = '';
-
-        if (libros.length === 0) {
-            lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
-            return;
+        // 1. Procesar LIBROS (Indíce 0)
+        if (resultados[0].status === 'fulfilled') {
+            const libros = await resultados[0].value.json();
+            if(statLibros) statLibros.innerText = libros.length || 0;
+            
+            // Pintar tabla de libros
+            lista.innerHTML = '';
+            if (libros.length === 0) {
+                lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
+            } else {
+                libros.forEach(libro => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-list-item';
+                    const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                    div.innerHTML = `
+                        <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
+                        <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
+                        <div class="admin-item-info">
+                            <h3>${libro.title}</h3>
+                            <p>${libro.author}</p>
+                            <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
+                        </div>
+                        <div class="admin-item-actions">
+                            <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                        </div>`;
+                    lista.appendChild(div);
+                });
+            }
+        } else {
+            console.error("Error libros:", resultados[0].reason);
+            lista.innerHTML = '<p style="color:red; text-align:center;">Error al cargar libros.</p>';
         }
 
-        libros.forEach(libro => {
-            const div = document.createElement('div');
-            div.className = 'admin-list-item';
-            const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
-            
-            div.innerHTML = `
-                <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
-                <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
-                <div class="admin-item-info">
-                    <h3>${libro.title}</h3>
-                    <p>${libro.author}</p>
-                    <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
-                </div>
-                <div class="admin-item-actions">
-                    <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                </div>`;
-            lista.appendChild(div);
-        });
+        // 2. Procesar PRÉSTAMOS (Índice 1) - Si falla, no rompe lo demás
+        if (resultados[1].status === 'fulfilled') {
+            const loans = await resultados[1].value.json();
+            if(statPrestamos) statPrestamos.innerText = loans.length || 0;
+        }
+
+        // 3. Procesar USUARIOS (Índice 2) - Si falla, no rompe lo demás
+        if (resultados[2].status === 'fulfilled') {
+            const users = await resultados[2].value.json();
+            if(statUsuarios) statUsuarios.innerText = users.length || 0;
+        }
+
     } catch (e) {
-        console.error("Error libros:", e);
-        lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión.</p>';
+        console.error("Error crítico en dashboard:", e);
     }
 }
 
@@ -612,7 +620,6 @@ async function cargarTablaPrestamos() {
     contenedor.innerHTML = '<p style="text-align:center; padding:20px;">Cargando préstamos...</p>';
 
     try {
-        // Usamos el endpoint /api/loans/all que vi en tu server.js para admin
         const res = await fetch(`${API_URL}/api/loans/all`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -620,6 +627,7 @@ async function cargarTablaPrestamos() {
         if (!res.ok) throw new Error('Error al cargar préstamos');
         const prestamos = await res.json();
 
+        // Actualizar contador también aquí por seguridad
         document.getElementById('statPrestamos').innerText = prestamos.length || 0;
 
         contenedor.innerHTML = '';
@@ -630,20 +638,24 @@ async function cargarTablaPrestamos() {
 
         prestamos.forEach(p => {
             const libro = p.book || { title: 'Libro no encontrado' };
-            // Si el populate de usuario no viene, mostramos el ID
-            const usuarioInfo = p.user ? (p.user.name || p.user) : 'Usuario desconocido';
+            // Seguridad: Si p.user es objeto usa name, si es string (ID) úsalo directo
+            let usuarioInfo = 'Desconocido';
+            if (p.user) {
+                usuarioInfo = p.user.name ? p.user.name : `ID: ${p.user}`;
+            }
+            
             const fecha = new Date(p.returnDate).toLocaleDateString();
 
             const div = document.createElement('div');
             div.className = 'admin-list-item';
             div.innerHTML = `
-                <div style="width:50px; height:50px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:15px; font-size:1.5rem;">
-                    
+                <div style="width:50px; height:50px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:15px; color:#166534;">
+                    <span class="material-symbols-outlined" style="font-size: 28px;">calendar_month</span>
                 </div>
                 <div class="admin-item-info">
                     <h3>${libro.title}</h3>
                     <p>Usuario: ${usuarioInfo}</p>
-                    <p style="font-size:0.8rem; color:#666;">Devolución: ${fecha} | ID Préstamo: ${p._id}</p>
+                    <p style="font-size:0.8rem; color:#666;">Devolución: ${fecha} | ID: ${p._id.slice(-6)}</p>
                 </div>
             `;
             contenedor.appendChild(div);
