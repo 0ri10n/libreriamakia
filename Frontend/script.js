@@ -7,8 +7,56 @@ const API_URL = window.location.hostname === 'localhost'
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
-// --- 1. NAVEGACIÓN DE PESTAÑAS (USUARIO) ---
-// Arregla el problema de "Mis Libros" y el cambio de secciones
+// --- 1. LÓGICA DE LOGIN (CORREGIDA PARA QUE AVANCE) ---
+loginForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            // Guardar datos de sesión
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userRole', data.user?.role || 'user');
+
+            // ACTIVAR CAMBIO DE PANTALLA
+            entrarAlSistema();
+        } else {
+            alert('Error: ' + (data.msg || 'Credenciales incorrectas'));
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        alert('Error de conexión con el servidor');
+    }
+});
+
+// Función vital para pasar del login a la biblioteca
+function entrarAlSistema() {
+    const mainContainer = document.querySelector('.main-container');
+    const starsBg = document.querySelector('.stars-background');
+    const userDashboard = document.getElementById('user-dashboard');
+
+    // Ocultar acceso y mostrar biblioteca
+    starsBg?.classList.add('hidden');
+    mainContainer?.classList.add('hidden');
+    
+    if (userDashboard) {
+        userDashboard.classList.remove('hidden');
+        cargarCatalogo(); // Carga inicial de libros
+    } else {
+        console.error("Error: No se encontró 'user-dashboard' en el HTML.");
+    }
+}
+
+// --- 2. NAVEGACIÓN DE PESTAÑAS (USUARIO) ---
 document.getElementById('btnMisLibros')?.addEventListener('click', () => {
     activarSeccionUsuario('loans-section', 'btnMisLibros');
     cargarMisPrestamos();
@@ -16,37 +64,32 @@ document.getElementById('btnMisLibros')?.addEventListener('click', () => {
 
 document.getElementById('btnInicio')?.addEventListener('click', () => {
     activarSeccionUsuario('catalog-section', 'btnInicio');
-    document.querySelector('.hero-section').classList.remove('hidden');
+    document.querySelector('.hero-section')?.classList.remove('hidden');
     cargarCatalogo();
 });
 
 function activarSeccionUsuario(idSeccion, idBoton) {
-    // Gestionar botones activos
     document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
     document.getElementById(idBoton)?.classList.add('active');
     
-    // Ocultar todas las secciones de contenido
-    document.querySelector('.hero-section').classList.add('hidden');
-    document.querySelector('.catalog-section').classList.add('hidden');
-    document.getElementById('loans-section').classList.add('hidden');
+    document.querySelector('.hero-section')?.classList.add('hidden');
+    document.querySelector('.catalog-section')?.classList.add('hidden');
+    document.getElementById('loans-section')?.classList.add('hidden');
     
-    // Mostrar la elegida
-    document.getElementById(idSeccion).classList.remove('hidden');
+    document.getElementById(idSeccion)?.classList.remove('hidden');
 }
 
-// --- 2. LÓGICA DE CATEGORÍAS (FILTRADO) ---
-// Detecta el clic en las etiquetas (Terror, Fantasía, etc.)
+// --- 3. LÓGICA DE CATEGORÍAS ---
 document.getElementById('containerCategorias')?.addEventListener('click', (e) => {
     if (e.target.classList.contains('pill')) {
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
         e.target.classList.add('active');
-        const cat = e.target.dataset.cat; // Usa el atributo data-cat del HTML
+        const cat = e.target.dataset.cat;
         cargarCatalogo('', cat);
     }
 });
 
-// --- 3. PANEL ADMINISTRATIVO (CAMBIO DE TABLAS) ---
-// Entrar y Salir del Panel Admin
+// --- 4. PANEL ADMINISTRATIVO ---
 document.getElementById('btnVerAdmin')?.addEventListener('click', () => {
     document.getElementById('user-dashboard').classList.add('hidden');
     document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -58,7 +101,7 @@ document.getElementById('btnVolverUsuario')?.addEventListener('click', () => {
     document.getElementById('user-dashboard').classList.remove('hidden');
 });
 
-// Switcher de Tablas dentro de Admin (Libros / Préstamos / Usuarios)
+// Switcher de Tablas dentro de Admin
 document.getElementById('tabLibrosAdmin')?.addEventListener('click', () => mostrarTablaAdmin('listaLibrosAdmin'));
 document.getElementById('tabPrestamosAdmin')?.addEventListener('click', () => {
     mostrarTablaAdmin('listaPrestamosAdmin');
@@ -71,11 +114,11 @@ document.getElementById('tabUsuariosAdmin')?.addEventListener('click', () => {
 
 function mostrarTablaAdmin(idLista) {
     const tablas = ['listaLibrosAdmin', 'listaPrestamosAdmin', 'listaUsuariosAdmin'];
-    tablas.forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById(idLista).classList.remove('hidden');
+    tablas.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    document.getElementById(idLista)?.classList.remove('hidden');
 }
 
-// --- 4. GESTIÓN DE LIBROS (MODAL AGREGAR) ---
+// --- 5. GESTIÓN DE LIBROS ---
 document.getElementById('btnAgregarLibro')?.addEventListener('click', () => {
     document.getElementById('modalEditarLibro').classList.remove('hidden');
     document.getElementById('formEditarLibro').reset();
@@ -85,10 +128,11 @@ document.getElementById('btnAgregarLibro')?.addEventListener('click', () => {
 
 window.cerrarModalEditar = () => document.getElementById('modalEditarLibro').classList.add('hidden');
 
-// --- 5. FUNCIONES DE CARGA DE DATOS (FETCH) ---
+// --- 6. FUNCIONES DE CARGA (FETCH) ---
 
 async function cargarCatalogo(busqueda = '', categoria = '') {
     const grid = document.getElementById('gridLibros');
+    if (!grid) return;
     try {
         let url = `${API_URL}/api/books?busqueda=${busqueda}`;
         if (categoria && categoria !== 'Todo') url += `&categoria=${categoria}`;
@@ -104,42 +148,29 @@ async function cargarCatalogo(busqueda = '', categoria = '') {
     } catch (e) { console.error("Error catálogo", e); }
 }
 
-async function cargarUsuariosAdmin() {
-    const lista = document.getElementById('listaUsuariosAdmin');
+async function cargarAdminDashboard() {
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }});
-        const users = await res.json();
-        lista.innerHTML = users.map(u => `
-            <div class="admin-list-item">
-                <div class="admin-item-info"><h3>${u.name}</h3><p>${u.email}</p></div>
-                <span class="badge">${u.role}</span>
-            </div>
-        `).join('');
-    } catch (e) { lista.innerHTML = "Error al cargar usuarios."; }
+        const [resB, resL, resU] = await Promise.all([
+            fetch(`${API_URL}/api/books`),
+            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}),
+            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
+        ]);
+
+        const libros = await resB.json();
+        document.getElementById('statLibros').innerText = libros.length;
+        document.getElementById('statPrestamos').innerText = (await resL.json()).length;
+        document.getElementById('statUsuarios').innerText = (await resU.json()).length;
+    } catch (e) { console.error("Error dashboard", e); }
 }
 
-async function cargarPrestamosAdmin() {
-    const lista = document.getElementById('listaPrestamosAdmin');
-    const token = localStorage.getItem('token');
-    try {
-        const res = await fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }});
-        const loans = await res.json();
-        lista.innerHTML = loans.map(l => `
-            <div class="admin-list-item">
-                <div class="admin-item-info">
-                    <h3>${l.book?.title || 'Libro eliminado'}</h3>
-                    <p>Usuario: ${l.user?.email || 'N/A'}</p>
-                </div>
-            </div>
-        `).join('');
-    } catch (e) { lista.innerHTML = "Error al cargar préstamos."; }
-}
-
-// --- 6. AUTENTICACIÓN INICIAL ---
+// --- 7. NAVEGACIÓN INICIAL Y SESIÓN ---
 document.getElementById('btnGoToLogin')?.addEventListener('click', () => {
     document.getElementById('landing-options').classList.add('hidden'); 
     loginForm.classList.remove('hidden');  
 });
 
-window.cerrarSesion = () => { localStorage.clear(); location.reload(); };
+window.cerrarSesion = () => { 
+    localStorage.clear(); 
+    location.reload(); 
+};
