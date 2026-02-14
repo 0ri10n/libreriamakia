@@ -225,3 +225,196 @@ document.getElementById('containerCategorias').addEventListener('click', (e) => 
         cargarCatalogo('', e.target.dataset.cat);
     }
 });
+
+// --- NAVEGACIÓN DASHBOARD (INICIO / MIS LIBROS) ---
+const btnInicio = document.getElementById('btnInicio');
+const btnMisLibros = document.getElementById('btnMisLibros');
+const secPrestamos = document.getElementById('loans-section');
+
+if (btnInicio && btnMisLibros) {
+    btnInicio.addEventListener('click', () => {
+        btnInicio.classList.add('active');
+        btnMisLibros.classList.remove('active');
+        document.querySelector('.hero-section').classList.remove('hidden');
+        document.querySelector('.catalog-section').classList.remove('hidden');
+        if(secPrestamos) secPrestamos.classList.add('hidden');
+    });
+
+    btnMisLibros.addEventListener('click', () => {
+        btnMisLibros.classList.add('active');
+        btnInicio.classList.remove('active');
+        document.querySelector('.hero-section').classList.add('hidden');
+        document.querySelector('.catalog-section').classList.add('hidden');
+        if(secPrestamos) secPrestamos.classList.remove('hidden');
+        cargarMisPrestamos();
+    });
+}
+
+// Función para cargar los préstamos del usuario
+async function cargarMisPrestamos() {
+    const lista = document.getElementById('listaPrestamos');
+    const token = localStorage.getItem('token');
+    
+    if (!lista) return;
+    lista.innerHTML = '<p>Cargando préstamos...</p>';
+
+    try {
+        const res = await fetch(`${API_URL}/api/loans`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Error al cargar');
+        
+        const prestamos = await res.json();
+        lista.innerHTML = '';
+
+        if (prestamos.length === 0) {
+            lista.innerHTML = '<div style="text-align:center; padding:40px;"><p>No tienes préstamos activos.</p></div>';
+            return;
+        }
+
+        prestamos.forEach(p => {
+            const libro = p.book || { title: 'Desconocido', image: '' };
+            const fecha = new Date(p.returnDate).toLocaleDateString();
+            
+            const card = document.createElement('div');
+            card.className = 'loan-card';
+            card.innerHTML = `
+                <img src="${libro.image || 'placeholder.jpg'}" alt="${libro.title}">
+                <div class="loan-info">
+                    <h3>${libro.title}</h3>
+                    <p class="loan-desc">${libro.description || ''}</p>
+                    <div class="loan-meta">
+                        <span>📅 Devolver: ${fecha}</span>
+                        <span class="status-badge">Activo</span>
+                    </div>
+                </div>`;
+            lista.appendChild(card);
+        });
+    } catch (e) {
+        console.error(e);
+        lista.innerHTML = '<p>Error de conexión al cargar préstamos.</p>';
+    }
+}
+
+// --- FUNCIONES DEL PANEL DE ADMINISTRADOR ---
+
+// 1. Mostrar formulario para AGREGAR (Limpia los campos)
+window.mostrarFormAgregarLibro = function() {
+    document.getElementById('formEditarLibro').reset();
+    document.getElementById('editBookId').value = ''; // ID vacío indica creación
+    document.getElementById('modalAdminTitle').innerText = "Agregar Libro";
+    document.getElementById('previewEdit').innerHTML = '';
+    document.getElementById('modalEditarLibro').classList.remove('hidden');
+};
+
+// 2. Cerrar el modal de edición
+window.cerrarModalEditar = function() {
+    document.getElementById('modalEditarLibro').classList.add('hidden');
+};
+
+// 3. Lógica para GUARDAR (Crear o Editar Libro)
+document.getElementById('formEditarLibro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const id = document.getElementById('editBookId').value;
+    
+    // Recolectar datos del formulario
+    const datos = {
+        title: document.getElementById('editTitle').value,
+        author: document.getElementById('editAuthor').value,
+        category: document.getElementById('editCategory').value,
+        ageRates: document.getElementById('editAgeRates').value,
+        Stock: parseInt(document.getElementById('editStock').value),
+        image: document.getElementById('editImage').value,
+        description: document.getElementById('editDescription').value
+    };
+
+    // Determinar si es Crear (POST) o Editar (PUT)
+    const url = id ? `${API_URL}/api/books/${id}` : `${API_URL}/api/books`;
+    const metodo = id ? 'PUT' : 'POST';
+
+    try {
+        const res = await fetch(url, {
+            method: metodo,
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (res.ok) {
+            alert(id ? "Libro actualizado" : "Libro creado");
+            window.cerrarModalEditar();
+            cargarAdminDashboard(); // Refrescar la tabla
+            cargarCatalogo(); // Refrescar el catálogo del usuario
+        } else {
+            const err = await res.json();
+            alert("Error: " + (err.error || err.msg));
+        }
+    } catch (e) { alert("Error de conexión al guardar."); }
+});
+
+// 4. Borrado Masivo (Checkboxes)
+window.confirmarBorradoMasivo = async function() {
+    // Busca todos los checkboxes marcados
+    const ids = Array.from(document.querySelectorAll('.select-item:checked')).map(cb => cb.dataset.id);
+    
+    if (ids.length === 0) return alert("Selecciona al menos un libro para borrar.");
+    if (!confirm(`¿Estás seguro de borrar ${ids.length} libros?`)) return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_URL}/api/books/batch`, {
+            method: 'DELETE',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ ids })
+        });
+
+        if (res.ok) {
+            alert("Libros eliminados correctamente.");
+            cargarAdminDashboard();
+        } else {
+            alert("Error al intentar borrar.");
+        }
+    } catch (e) { alert("Error de conexión."); }
+};
+
+// 5. Funciones visuales para botones pendientes (Préstamos/Usuarios)
+window.mostrarFormAgregarPrestamo = () => document.getElementById('modalAgregarPrestamo').classList.remove('hidden');
+window.mostrarFormAgregarUsuario = () => document.getElementById('modalAgregarUsuario').classList.remove('hidden');
+window.confirmarBorradoMasivoPrestamos = () => alert("Función de borrado masivo de préstamos no implementada.");
+window.confirmarBorradoMasivoUsuarios = () => alert("Función de borrado masivo de usuarios no implementada.");
+
+// --- PERFIL DE USUARIO Y TEMAS ---
+
+window.abrirModalPerfil = function() {
+    const email = localStorage.getItem('userEmail') || 'Usuario';
+    // Extraer nombre del email para mostrar algo amigable
+    const nombre = email.split('@')[0];
+    
+    document.getElementById('profileName').innerText = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    document.getElementById('profileEmail').innerText = email;
+    document.getElementById('modalPerfilUsuario').classList.remove('hidden');
+};
+
+window.cambiarTema = function(primary, secondary) {
+    // Cambia las variables CSS globales
+    document.documentElement.style.setProperty('--primary-color', primary);
+    document.documentElement.style.setProperty('--secondary-color', secondary);
+    
+    // Guarda la preferencia para la próxima vez
+    localStorage.setItem('themePrimary', primary);
+    localStorage.setItem('themeSecondary', secondary);
+};
+
+// Aplicar tema guardado al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    const p = localStorage.getItem('themePrimary');
+    const s = localStorage.getItem('themeSecondary');
+    if (p && s) window.cambiarTema(p, s);
+});
