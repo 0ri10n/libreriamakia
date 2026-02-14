@@ -1,7 +1,7 @@
 // URL de API corregida para Render
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000' 
-    : 'https://libreriamakia-j7w6.onrender.com';
+    : '';
 
 // ELEMENTOS DEL DOM
 const landingOptions = document.getElementById('landing-options');
@@ -131,70 +131,76 @@ async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
     
+    // Contadores visuales
     const statLibros = document.getElementById('statLibros');
     const statPrestamos = document.getElementById('statPrestamos');
     const statUsuarios = document.getElementById('statUsuarios');
 
     if (!lista) return;
-    lista.innerHTML = '<p style="text-align:center">Actualizando panel...</p>';
+    lista.innerHTML = '<p style="text-align:center">Cargando panel...</p>';
 
+    // 1. CARGAR USUARIOS (Petición aislada)
+    fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
+        .then(res => res.json())
+        .then(users => { 
+            console.log("Usuarios cargados:", users.length);
+            if(statUsuarios) statUsuarios.innerText = users.length || 0; 
+        })
+        .catch(e => console.error("Error cargando usuarios (no afecta lo demás)", e));
+
+    // 2. CARGAR PRÉSTAMOS (Petición aislada - AQUÍ ESTABA TU PROBLEMA)
+    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
+        .then(res => {
+            if(!res.ok) throw new Error("Error de permisos o conexión");
+            return res.json();
+        })
+        .then(loans => { 
+            console.log("Préstamos cargados:", loans.length);
+            if(statPrestamos) statPrestamos.innerText = loans.length || 0; 
+        })
+        .catch(e => {
+            console.error("Error cargando préstamos:", e);
+            if(statPrestamos) statPrestamos.innerText = "0"; // Si falla, muestra 0, no error
+        });
+
+    // 3. CARGAR LIBROS (Petición Principal para la tabla)
     try {
-        // Lanzamos las 3 peticiones en paralelo y esperamos a que TODAS terminen (éxito o error)
-        const resultados = await Promise.allSettled([
-            fetch(`${API_URL}/api/books`),
-            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}),
-            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
-        ]);
+        const res = await fetch(`${API_URL}/api/books`);
+        const libros = await res.json();
 
-        // 1. Procesar LIBROS (Indíce 0)
-        if (resultados[0].status === 'fulfilled') {
-            const libros = await resultados[0].value.json();
-            if(statLibros) statLibros.innerText = libros.length || 0;
+        if(statLibros) statLibros.innerText = libros.length || 0;
+        lista.innerHTML = '';
+
+        if (libros.length === 0) {
+            lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
+            return;
+        }
+
+        libros.forEach(libro => {
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            // Escapar comillas para evitar errores visuales
+            const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
             
-            // Pintar tabla de libros
-            lista.innerHTML = '';
-            if (libros.length === 0) {
-                lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
-            } else {
-                libros.forEach(libro => {
-                    const div = document.createElement('div');
-                    div.className = 'admin-list-item';
-                    const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                    div.innerHTML = `
-                        <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
-                        <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
-                        <div class="admin-item-info">
-                            <h3>${libro.title}</h3>
-                            <p>${libro.author}</p>
-                            <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
-                        </div>
-                        <div class="admin-item-actions">
-                            <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
-                                <span class="material-symbols-outlined">edit</span>
-                            </button>
-                        </div>`;
-                    lista.appendChild(div);
-                });
-            }
-        } else {
-            console.error("Error libros:", resultados[0].reason);
-            lista.innerHTML = '<p style="color:red; text-align:center;">Error al cargar libros.</p>';
-        }
-
-        // 2. Procesar PRÉSTAMOS (Índice 1) - Si falla, no rompe lo demás
-        if (resultados[1].status === 'fulfilled') {
-            const loans = await resultados[1].value.json();
-            if(statPrestamos) statPrestamos.innerText = loans.length || 0;
-        }
-
-        // 3. Procesar USUARIOS (Índice 2) - Si falla, no rompe lo demás
-        if (resultados[2].status === 'fulfilled') {
-            const users = await resultados[2].value.json();
-            if(statUsuarios) statUsuarios.innerText = users.length || 0;
-        }
+            div.innerHTML = `
+                <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
+                <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
+                <div class="admin-item-info">
+                    <h3>${libro.title}</h3>
+                    <p>${libro.author}</p>
+                    <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>`;
+            lista.appendChild(div);
+        });
 
     } catch (e) {
-        console.error("Error crítico en dashboard:", e);
+        console.error("Error crítico en libros:", e);
+        lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión.</p>';
     }
 }
 
