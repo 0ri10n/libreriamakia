@@ -26,30 +26,35 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
-// Registro de Usuario (CORREGIDO PARA GUARDAR EN ATLAS)
+// --- REGISTRO DE USUARIO CORREGIDO ---
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    // 1. Verificar si el usuario ya existe
+    // 1. Verificar si ya existe
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
 
-    // 2. Crear instancia del usuario
+    // 2. Crear instancia
     user = new User({ name, email, password });
     
-    // 3. GUARDAR EN MONGO ATLAS
-    await user.save();
+    // 3. GUARDAR Y ESPERAR CONFIRMACIÓN DE MONGODB (Paso vital)
+    const usuarioGuardado = await user.save();
+    
+    if (!usuarioGuardado) {
+        throw new Error("No se pudo confirmar el guardado en Atlas");
+    }
+
+    console.log(`✅ Registro exitoso en Atlas: ${email}`);
 
     // 4. Generar Token
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
-    console.log(`✅ Usuario guardado correctamente: ${email}`);
 
   } catch (err) {
-    console.error("❌ Error en registro:", err.message);
-    res.status(500).json({ msg: 'Error al conectar con la base de datos' });
+    console.error("❌ ERROR REAL EN ATLAS:", err.message);
+    res.status(500).json({ msg: 'Error de escritura en base de datos: ' + err.message });
   }
 });
 
