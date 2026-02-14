@@ -293,16 +293,28 @@
                     <div id="contadorCaracteres" style="text-align: right; font-size: 0.85rem; color: #666; margin-top: 5px;">
                         0 / 100
                     </div>
-                    <input type="text" id="editCategory" placeholder="Categoría" required>
+                    <label style="font-weight:600; margin-top:15px;">Categoría *</label>
+                        <select id="editCategory" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%; background-color: white;" required>
+                            <option value="" disabled selected>Seleccionar categoría</option>
+                            <option value="Cuentos Infantiles">Cuentos Infantiles</option>
+                            <option value="Aventuras Juveniles">Aventuras Juveniles</option>
+                            <option value="Literatura Clásica">Literatura Clásica</option>
+                            <option value="Historia y Biografías">Historia y Biografías</option>
+                            <option value="Arte y Cultura">Arte y Cultura</option>
+                            <option value="Ciencia Ficción">Ciencia Ficción</option>
+                            <option value="Terror">Terror</option>
+                            <option value="Manuales">Manuales</option>
+                            <option value="Romance">Romance</option>
+                        </select>
                     
                     <label>Clasificación de edad *</label>
                     <select id="editAgeRates" required>
                         <option value="">Seleccionar</option>
                         <option value="Todo Público">Todo Público</option>
-                        <option value="+7">8 - 12 años</option>
-                        <option value="+12">+12 años</option>
-                        <option value="+16">+16 años</option>
-                        <option value="+18">+18 años</option>
+                        <option value="7">8 - 12 años</option>
+                        <option value="12">+12 años</option>
+                        <option value="16">+16 años</option>
+                        <option value="18">+18 años</option>
                     </select>
                     
                     <label>Número de ejemplares *</label>
