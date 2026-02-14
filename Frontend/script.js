@@ -131,7 +131,7 @@ async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
     
-    // Contadores visuales
+    // Elementos visuales (Contadores)
     const statLibros = document.getElementById('statLibros');
     const statPrestamos = document.getElementById('statPrestamos');
     const statUsuarios = document.getElementById('statUsuarios');
@@ -139,31 +139,38 @@ async function cargarAdminDashboard() {
     if (!lista) return;
     lista.innerHTML = '<p style="text-align:center">Cargando panel...</p>';
 
-    // 1. CARGAR USUARIOS (Petición aislada)
+    // VERIFICACIÓN DE SEGURIDAD
+    if (!token) {
+        alert("Sesión expirada");
+        return cerrarSesion();
+    }
+
+    console.log("Conectando a:", API_URL); // Para depuración
+
+    // 1. CARGAR USUARIOS
     fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(res => res.json())
         .then(users => { 
-            console.log("Usuarios cargados:", users.length);
             if(statUsuarios) statUsuarios.innerText = users.length || 0; 
         })
-        .catch(e => console.error("Error cargando usuarios (no afecta lo demás)", e));
+        .catch(e => console.error("Error usuarios:", e));
 
-    // 2. CARGAR PRÉSTAMOS (Petición aislada - AQUÍ ESTABA TU PROBLEMA)
+    // 2. CARGAR PRÉSTAMOS (Esto es lo que fallaba)
     fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(res => {
-            if(!res.ok) throw new Error("Error de permisos o conexión");
+            if(!res.ok) throw new Error(`Error ${res.status}: No se pudieron cargar préstamos`);
             return res.json();
         })
         .then(loans => { 
-            console.log("Préstamos cargados:", loans.length);
+            console.log("Préstamos recibidos:", loans);
             if(statPrestamos) statPrestamos.innerText = loans.length || 0; 
         })
         .catch(e => {
-            console.error("Error cargando préstamos:", e);
-            if(statPrestamos) statPrestamos.innerText = "0"; // Si falla, muestra 0, no error
+            console.error("Fallo en préstamos:", e);
+            if(statPrestamos) statPrestamos.innerText = "0";
         });
 
-    // 3. CARGAR LIBROS (Petición Principal para la tabla)
+    // 3. CARGAR LIBROS (Tabla Principal)
     try {
         const res = await fetch(`${API_URL}/api/books`);
         const libros = await res.json();
@@ -179,7 +186,6 @@ async function cargarAdminDashboard() {
         libros.forEach(libro => {
             const div = document.createElement('div');
             div.className = 'admin-list-item';
-            // Escapar comillas para evitar errores visuales
             const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
             
             div.innerHTML = `
@@ -199,7 +205,7 @@ async function cargarAdminDashboard() {
         });
 
     } catch (e) {
-        console.error("Error crítico en libros:", e);
+        console.error("Error libros:", e);
         lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión.</p>';
     }
 }
