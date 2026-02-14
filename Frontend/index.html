@@ -286,11 +286,13 @@
                     <label>Autor *</label>
                     <input type="text" id="editAuthor" placeholder="Nombre del autor" required>
                     
-                    <label>Descripción *</label>
-                    <textarea id="editDescription" placeholder="Sinopsis del libro" rows="4" maxlength="100" required></textarea>
-                    <small class="char-count">0/100</small>
-                    
-                    <label>Categoría *</label>
+                    <label style="font-weight:600; margin-top:15px;">Descripción *</label>
+                    <textarea id="editDescription" placeholder="Breve reseña..." rows="3" 
+                        style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%; resize: none;"></textarea>
+
+                    <div id="contadorCaracteres" style="text-align: right; font-size: 0.85rem; color: #666; margin-top: 5px;">
+                        0 / 100
+                    </div>
                     <input type="text" id="editCategory" placeholder="Categoría" required>
                     
                     <label>Clasificación de edad *</label>

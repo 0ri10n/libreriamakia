@@ -775,3 +775,80 @@ if (btnGuardarPrestamo) {
         } catch (e) { alert("Error de conexión"); }
     };
 }
+
+// =========================================================
+// --- LÓGICA DE CONTADOR DE CARACTERES (DESCRIPCIÓN) ---
+// =========================================================
+
+const txtDescripcion = document.getElementById('editDescription');
+const divContador = document.getElementById('contadorCaracteres');
+
+// Función que actualiza el contador en tiempo real
+function actualizarContador() {
+    if (!txtDescripcion || !divContador) return;
+
+    const textoOriginal = txtDescripcion.value;
+    // Eliminamos todos los espacios en blanco para contar
+    const textoSinEspacios = textoOriginal.replace(/\s/g, ''); 
+    const cantidad = textoSinEspacios.length;
+
+    // Actualizar el texto del contador
+    divContador.innerText = `${cantidad} / 100`;
+
+    // Cambiar color si se pasa del límite
+    if (cantidad > 100) {
+        divContador.style.color = 'red';
+        divContador.style.fontWeight = 'bold';
+    } else {
+        divContador.style.color = '#666';
+        divContador.style.fontWeight = 'normal';
+    }
+}
+
+// Escuchar cada tecla que el usuario presiona
+if (txtDescripcion) {
+    txtDescripcion.addEventListener('input', actualizarContador);
+}
+
+// --- MODIFICACIÓN DE LOS MODALES PARA RESETEAR EL CONTADOR ---
+
+// Sobrescribimos la función de abrir modal para que calcule el contador al abrir
+const funcionOriginalEditar = window.abrirModalEditar;
+window.abrirModalEditar = function(libro) {
+    // Llamamos a la función original para que llene los datos
+    funcionOriginalEditar(libro);
+    // Inmediatamente actualizamos el contador con los datos cargados
+    actualizarContador();
+};
+
+const funcionOriginalAgregar = window.mostrarFormAgregarLibro;
+window.mostrarFormAgregarLibro = function() {
+    funcionOriginalAgregar();
+    // Reseteamos el contador a 0 al abrir para agregar
+    actualizarContador();
+};
+
+// --- VALIDACIÓN AL GUARDAR (IMPIDE ENVIAR SI SE PASA) ---
+
+const formEdicion = document.getElementById('formEditarLibro');
+// Interceptamos el envío para validar antes de mandar al servidor
+if (formEdicion) {
+    // Guardamos la referencia del submit original si existiera, pero aquí actuamos antes
+    const btnGuardar = formEdicion.querySelector('.btn-save-header'); // O el botón submit
+    
+    // Nota: Tu código actual usa un eventListener 'submit' en el formulario.
+    // Vamos a inyectar la validación dentro de ese listener existente.
+    // Como no puedo modificar el código de arriba, agregamos una validación extra:
+    
+    formEdicion.addEventListener('submit', (e) => {
+        const texto = document.getElementById('editDescription').value;
+        const sinEspacios = texto.replace(/\s/g, '').length;
+
+        if (sinEspacios > 100) {
+            e.preventDefault(); // DETIENE EL ENVÍO
+            e.stopImmediatePropagation(); // DETIENE OTROS SCRIPTS
+            alert(`La descripción es muy larga (${sinEspacios} caracteres sin espacios). El máximo es 100.`);
+            return false;
+        }
+    }, true); // UseCapture para ejecutarse primero
+}
