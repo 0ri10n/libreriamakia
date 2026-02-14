@@ -147,25 +147,50 @@ app.get('/api/loans/all', proteger, async (req, res) => {
 
 // --- RUTAS DE PRÉSTAMOS (USUARIO) ---
 
-app.get('/api/loans', proteger, async (req, res) => {
-    try {
-        const loans = await Loan.find({ user: req.user.id }).populate('book');
-        res.json(loans);
-    } catch (err) { res.status(500).json({ msg: "Error" }); }
-});
-
 app.post('/api/loans', proteger, async (req, res) => {
     try {
-        const loan = new Loan({ user: req.user.id, book: req.body.bookId });
-        await loan.save();
+        const { bookId } = req.body;
+
+        // 1. Buscar el libro primero para verificar si existe y si tiene Stock
+        const book = await Book.findById(bookId);
+        
+        if (!book) {
+            return res.status(404).json({ msg: "El libro no existe." });
+        }
+
+        if (book.Stock < 1) {
+            return res.status(400).json({ msg: "El libro está agotado." });
+        }
+
+        // 2. Verificar si el usuario YA tiene ese libro prestado (Opcional pero recomendado)
+        const prestamoExistente = await Loan.findOne({ user: req.user.id, book: bookId });
+        if (prestamoExistente) {
+            return res.status(400).json({ msg: "Ya tienes este libro en préstamo." });
+        }
+
+        // 3. Calcular Fechas (OBLIGATORIO por tu modelo loans.js)
+        const fechaPrestamo = new Date();
+        const fechaDevolucion = new Date();
+        fechaDevolucion.setDate(fechaPrestamo.getDate() + 15); // Sumar 15 días
+
+        // 4. Crear el préstamo con TODOS los datos requeridos
+        const loan = new Loan({ 
+            user: req.user.id, 
+            book: bookId,
+            loanDate: fechaPrestamo,
+            returnDate: fechaDevolucion
+        });
+        
+        await loan.save(); // Guardar el préstamo
+
+        // 5. IMPORTANTE: Restar 1 al Stock del libro
+        book.Stock = book.Stock - 1;
+        await book.save(); // Guardar el libro actualizado
+
         res.status(201).json(loan);
-    } catch (err) { res.status(400).json({ msg: "Error al procesar préstamo" }); }
-});
 
-// --- SOLUCIÓN PARA RENDER (EXPRESIÓN REGULAR PURA) ---
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+    } catch (err) { 
+        console.error("Error préstamo:", err);
+        res.status(400).json({ msg: "Error al procesar préstamo: " + err.message }); 
+    }
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
