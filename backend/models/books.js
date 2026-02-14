@@ -35,7 +35,7 @@ const BookSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: {
-      values: ['Todo Público', '+7', '+12', '+16', '+18'],
+      values: ['Todo Público', '7', '12', '16', '18'],
       message: '{VALUE} no es una clasificación válida'
     },
     default: 'Todo Público'

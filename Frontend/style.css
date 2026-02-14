@@ -1325,8 +1325,8 @@ textarea {
 }
 
 .btn-cancel-header {
-    background-color: #8a4f9e; /* Morado */
-    color: white;
+    background-color: #e5e7eb; 
+    color: #4b5563;
     border: none;
     padding: 10px 30px;
     border-radius: 8px;
@@ -1336,8 +1336,8 @@ textarea {
 }
 
 .btn-save-header {
-    background-color: #dcdcdc; /* Gris */
-    color: #333;
+    background-color: var(--primary-color); 
+    color: white;
     border: none;
     padding: 10px 30px;
     border-radius: 8px;
