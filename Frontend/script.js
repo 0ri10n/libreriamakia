@@ -156,19 +156,22 @@ async function cargarAdminDashboard() {
         .catch(e => console.error("Error usuarios:", e));
 
     // 2. CARGAR PRÉSTAMOS (Esto es lo que fallaba)
-    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
-        .then(res => {
-            if(!res.ok) throw new Error(`Error ${res.status}: No se pudieron cargar préstamos`);
-            return res.json();
-        })
-        .then(loans => { 
-            console.log("Préstamos recibidos:", loans);
-            if(statPrestamos) statPrestamos.innerText = loans.length || 0; 
-        })
-        .catch(e => {
-            console.error("Fallo en préstamos:", e);
-            if(statPrestamos) statPrestamos.innerText = "0";
-        });
+        fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
+                .then(res => {
+                    if(!res.ok) throw new Error(`Error ${res.status}: No se pudieron cargar préstamos`);
+                    return res.json();
+                })
+                .then(loansRaw => { 
+                    // APLICAMOS LA MISMA SOLUCIÓN: Filtrar los que no tienen libro
+                    const loans = loansRaw.filter(p => p.book !== null);
+                    
+                    console.log("Préstamos activos:", loans.length);
+                    if(statPrestamos) statPrestamos.innerText = loans.length || 0; 
+                })
+                .catch(e => {
+                    console.error("Fallo en préstamos:", e);
+                    if(statPrestamos) statPrestamos.innerText = "0";
+                });
 
     // 3. CARGAR LIBROS (Tabla Principal)
     try {
@@ -637,10 +640,14 @@ async function cargarTablaPrestamos() {
         });
 
         if (!res.ok) throw new Error('Error al cargar préstamos');
-        const prestamos = await res.json();
+        const prestamosRaw = await res.json();
 
-        // Actualizar contador también aquí por seguridad
-        document.getElementById('statPrestamos').innerText = prestamos.length || 0;
+        // --- FILTRO MÁGICO: Si el libro es null (fue borrado), NO lo mostramos ---
+        const prestamos = prestamosRaw.filter(p => p.book !== null);
+
+        // Actualizamos el contador con el número REAL (sin contar los borrados)
+        const contador = document.getElementById('statPrestamos');
+        if(contador) contador.innerText = prestamos.length || 0;
 
         contenedor.innerHTML = '';
         if (prestamos.length === 0) {
@@ -649,10 +656,13 @@ async function cargarTablaPrestamos() {
         }
 
         prestamos.forEach(p => {
-            const libro = p.book || { title: 'Libro no encontrado' };
-            // Seguridad: Si p.user es objeto usa name, si es string (ID) úsalo directo
-            let usuarioInfo = 'Desconocido';
+            // Como ya filtramos, p.book SIEMPRE existe. Es seguro usarlo.
+            const libro = p.book; 
+            
+            // Verificamos si el usuario existe o si fue borrado
+            let usuarioInfo = 'Usuario desconocido';
             if (p.user) {
+                // Si p.user es un objeto con nombre, úsalo. Si es solo ID, úsalo.
                 usuarioInfo = p.user.name ? p.user.name : `ID: ${p.user}`;
             }
             
