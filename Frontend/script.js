@@ -131,35 +131,54 @@ async function cargarCatalogo(busqueda = '', categoria = '') {
 async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
+    
+    // Referencias a los contadores (Tarjetas de arriba)
+    const statLibros = document.getElementById('statLibros');
+    const statPrestamos = document.getElementById('statPrestamos');
+    const statUsuarios = document.getElementById('statUsuarios');
+
     if (!lista) return;
-    lista.innerHTML = '<p>Cargando datos maestros...</p>';
+    lista.innerHTML = '<p style="text-align:center">Cargando datos maestros...</p>';
 
     try {
-        const [resB, resL, resU] = await Promise.all([
-            fetch(`${API_URL}/api/books`),
-            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}),
-            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
+        // 1. Carga paralela de TODOS los datos para los contadores
+        const [resBooks, resLoans, resUsers] = await Promise.all([
+            fetch(`${API_URL}/api/books`), // Catálogo de libros
+            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}), // Todos los préstamos
+            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }}) // Todos los usuarios
         ]);
 
-        const libros = await resB.json();
-        const prestamos = await resL.json();
-        const usuarios = await resU.json();
+        // Convertir respuestas a JSON
+        const libros = await resBooks.json();
+        const prestamos = await resLoans.json();
+        const usuarios = await resUsers.json();
 
-        // Actualizar contadores visuales (ARREGLADO)
-        document.getElementById('statLibros').innerText = libros.length || 0;
-        document.getElementById('statPrestamos').innerText = prestamos.length || 0;
-        document.getElementById('statUsuarios').innerText = usuarios.length || 0;
+        // 2. Actualización INMEDIATA de los contadores visuales
+        // Se usa .length para saber la cantidad real de datos en la base de datos
+        if (statLibros) statLibros.innerText = libros.length || 0;
+        if (statPrestamos) statPrestamos.innerText = prestamos.length || 0;
+        if (statUsuarios) statUsuarios.innerText = usuarios.length || 0;
 
+        // 3. Renderizar la Tabla de Libros (Vista por defecto al entrar)
         lista.innerHTML = '';
+        
+        if (libros.length === 0) {
+            lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
+            return;
+        }
+
         libros.forEach(libro => {
             const div = document.createElement('div');
             div.className = 'admin-list-item';
+            
+            // Prevenir error de comillas en el objeto JSON al pasarlo al HTML
             const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;');
+            
             div.innerHTML = `
-                <img src="${libro.image}" style="width:50px; height:70px; object-fit:cover; margin-right:15px;">
+                <img src="${libro.image || 'placeholder.jpg'}" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
                 <div class="admin-item-info">
                     <h3>${libro.title}</h3>
-                    <p>${libro.author} | Stock: ${libro.Stock}</p>
+                    <p>${libro.author} | Stock: <strong>${libro.Stock}</strong></p>
                 </div>
                 <div class="admin-item-actions">
                     <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
@@ -171,7 +190,11 @@ async function cargarAdminDashboard() {
                 </div>`;
             lista.appendChild(div);
         });
-    } catch (e) { console.error("Error dashboard:", e); }
+
+    } catch (e) { 
+        console.error("Error cargando dashboard:", e);
+        lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión al cargar datos.</p>';
+    }
 }
 
 // --- FUNCIONES DE ADMINISTRACIÓN (EDITAR/ELIMINAR) ---
