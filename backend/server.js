@@ -140,11 +140,13 @@ app.get('/api/users', proteger, async (req, res) => {
 
 app.get('/api/loans/all', proteger, async (req, res) => {
     try {
-        const loans = await Loan.find().populate('book');
+        const loans = await Loan.find({ user: req.user.id }).populate('book');
         res.json(loans);
-    } catch (err) { res.status(500).json({ msg: "Error al obtener préstamos" }); }
+    } catch (err) { 
+        console.error(err);
+        res.status(500).json({ msg: "Error al cargar tus préstamos" }); 
+    }
 });
-
 // --- RUTAS DE PRÉSTAMOS (USUARIO) ---
 
 app.post('/api/loans', proteger, async (req, res) => {
