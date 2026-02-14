@@ -4,16 +4,17 @@ const connectDB = require('./mongoose');
 
 const app = express();
 
-// Conectar BD
 connectDB();
 
 // Middleware para leer JSON
 app.use(express.json());
 
+
+//El servidor esta corriendo
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(` Servidor corriendo en puerto ${PORT}`));
 
-const User = require('./models/users'); // Asegúrate de que la ruta sea correcta
+const User = require('./models/users'); 
 
 //PRUEBAS PARA VERIFICAR CONEXIÓN, EVIDENCIA, LAS TABLAS ESTAN EN MONGO
 
@@ -45,8 +46,8 @@ app.get('/test-book', async (req, res) => {
     });
 
     await testBook.save();
-    res.send("📖 ¡Libro creado con éxito en la base de datos!");
+    res.send(" ¡Libro creado con éxito en la base de datos!");
   } catch (err) {
-    res.status(500).send("❌ Error en el modelo de libros: " + err.message);
+    res.status(500).send(" Error en el modelo de libros: " + err.message);
   }
 });
