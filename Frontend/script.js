@@ -145,10 +145,10 @@ async function cargarAdminDashboard() {
         const prestamos = await resL.json();
         const usuarios = await resU.json();
 
-        // Actualizar contadores visuales
-        document.getElementById('statLibros').innerText = libros.length;
-        document.getElementById('statPrestamos').innerText = prestamos.length;
-        document.getElementById('statUsuarios').innerText = usuarios.length;
+        // Actualizar contadores visuales (ARREGLADO)
+        document.getElementById('statLibros').innerText = libros.length || 0;
+        document.getElementById('statPrestamos').innerText = prestamos.length || 0;
+        document.getElementById('statUsuarios').innerText = usuarios.length || 0;
 
         lista.innerHTML = '';
         libros.forEach(libro => {
@@ -552,6 +552,8 @@ async function cargarTablaUsuarios() {
         if (!res.ok) throw new Error('Error al cargar usuarios');
         const usuarios = await res.json();
 
+        document.getElementById('statUsuarios').innerText = usuarios.length || 0;
+
         contenedor.innerHTML = '';
         if (usuarios.length === 0) {
             contenedor.innerHTML = '<p style="text-align:center;">No hay usuarios registrados.</p>';
@@ -594,6 +596,8 @@ async function cargarTablaPrestamos() {
 
         if (!res.ok) throw new Error('Error al cargar préstamos');
         const prestamos = await res.json();
+
+        document.getElementById('statPrestamos').innerText = prestamos.length || 0;
 
         contenedor.innerHTML = '';
         if (prestamos.length === 0) {
