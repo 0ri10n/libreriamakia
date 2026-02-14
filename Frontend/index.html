@@ -84,13 +84,14 @@
             </header>
 
             <section class="hero-section">
-                <div class="hero-card">
-                    <div class="stars-static"></div>
-                    <div class="search-container-overlay">
-                        <input type="text" id="txtBusqueda" placeholder="Buscar libro">
-                        <button id="btnBuscar"><span class="material-symbols-outlined">search</span></button>
-                    </div>
+                <div class="hero-card" style="position: relative; overflow: hidden;">
+                <div id="hero-stars-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></div>
+                
+                <div class="search-container-overlay" style="z-index: 10;">
+                    <input type="text" id="txtBusqueda" placeholder="Buscar libro">
+                    <button id="btnBuscar"><span class="material-symbols-outlined">search</span></button>
                 </div>
+            </div>
             </section>
 
             <section class="catalog-section">
@@ -334,14 +335,10 @@
         </div>
     </div>
         <script type="module">
-        // Importamos la librería OGL directamente desde la red
         import { Renderer, Camera, Geometry, Program, Mesh } from 'https://unpkg.com/ogl';
 
-        // Configuración
-        const particleCount = 300;  // Cantidad de estrellas/partículas
-        const particleColors = ['#ffffff', '#e0ccff', '#8a4f9e']; // Blanco y Morados de tu marca
+        const particleColors = ['#ffffff', '#e0ccff', '#8a4f9e'];
 
-        // Función auxiliar para convertir HEX a RGB
         const hexToRgb = hex => {
             hex = hex.replace(/^#/, '');
             if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
@@ -349,35 +346,28 @@
             return [((int >> 16) & 255) / 255, ((int >> 8) & 255) / 255, (int & 255) / 255];
         };
 
-        // SHADERS (La matemática visual, copiada tal cual de tu ejemplo)
         const vertex = `
             attribute vec3 position;
             attribute vec4 random;
             attribute vec3 color;
-            
             uniform mat4 modelMatrix;
             uniform mat4 viewMatrix;
             uniform mat4 projectionMatrix;
             uniform float uTime;
             uniform float uSpread;
             uniform float uBaseSize;
-            
             varying vec4 vRandom;
             varying vec3 vColor;
-            
             void main() {
                 vRandom = random;
                 vColor = color;
-                
                 vec3 pos = position * uSpread;
                 pos.z *= 10.0;
-                
                 vec4 mPos = modelMatrix * vec4(pos, 1.0);
                 float t = uTime;
                 mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
                 mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
                 mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
-                
                 vec4 mvPos = viewMatrix * mPos;
                 gl_PointSize = (uBaseSize * (1.0 + (random.x - 0.5))) / length(mvPos.xyz);
                 gl_Position = projectionMatrix * mvPos;
@@ -389,7 +379,6 @@
             uniform float uTime;
             varying vec4 vRandom;
             varying vec3 vColor;
-            
             void main() {
                 vec2 uv = gl_PointCoord.xy;
                 float d = length(uv - vec2(0.5));
@@ -398,10 +387,11 @@
             }
         `;
 
-        // INICIALIZACIÓN
-        const container = document.querySelector('.stars-background');
-        
-        if (container) {
+        // FUNCIÓN REUTILIZABLE PARA CREAR ESTRELLAS
+        function initStars(containerSelector, isFullscreen = true) {
+            const container = document.querySelector(containerSelector);
+            if (!container) return null;
+
             const renderer = new Renderer({ depth: false, alpha: true });
             const gl = renderer.gl;
             container.appendChild(gl.canvas);
@@ -411,14 +401,18 @@
             camera.position.set(0, 0, 20);
 
             function resize() {
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                // Si es pantalla completa usa window, si no, usa el tamaño del contenedor (Banner)
+                const width = isFullscreen ? window.innerWidth : container.clientWidth;
+                const height = isFullscreen ? window.innerHeight : container.clientHeight;
+                renderer.setSize(width, height);
                 camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
             }
+            
             window.addEventListener('resize', resize, false);
             resize();
 
-            // Datos de las partículas
-            const count = particleCount;
+            // Configuración de partículas
+            const count = 300;
             const positions = new Float32Array(count * 3);
             const randoms = new Float32Array(count * 4);
             const colors = new Float32Array(count * 3);
@@ -431,11 +425,9 @@
                     z = Math.random() * 2 - 1;
                     len = x * x + y * y + z * z;
                 } while (len > 1 || len === 0);
-                
                 const r = Math.cbrt(Math.random());
                 positions.set([x * r, y * r, z * r], i * 3);
                 randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
-                
                 const col = hexToRgb(particleColors[Math.floor(Math.random() * particleColors.length)]);
                 colors.set(col, i * 3);
             }
@@ -461,34 +453,50 @@
             const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
             let requestID;
 
-            // Bucle de Animación
             function update(t) {
                 requestID = requestAnimationFrame(update);
-                program.uniforms.uTime.value = t * 0.001 * 0.3; // Velocidad 0.3
-                
-                // Rotación suave
+                program.uniforms.uTime.value = t * 0.001 * 0.3;
                 particles.rotation.y = Math.cos(t * 0.0005) * 0.15;
                 particles.rotation.z += 0.001;
-
                 renderer.render({ scene: particles, camera });
             }
             
             requestID = requestAnimationFrame(update);
+
+            return { stop: () => cancelAnimationFrame(requestID), container };
+        }
+
+        // --- LÓGICA DE ACTIVACIÓN ---
+        
+        // 1. Iniciar estrellas del Login (Fondo)
+        let loginStars = initStars('.stars-background', true);
+        let dashboardStars = null;
+
+        // 2. Observar cambios para activar las del Dashboard
+        const observer = new MutationObserver((mutations) => {
+            const dashboard = document.getElementById('user-dashboard');
             
-            // Detener animación si el usuario entra al sistema (Optimización)
-            // Esto detecta si el dashboard se vuelve visible
-            const observer = new MutationObserver((mutations) => {
-                const dashboard = document.getElementById('user-dashboard');
-                if (dashboard && !dashboard.classList.contains('hidden')) {
-                    cancelAnimationFrame(requestID); // Pausa las partículas
-                    container.style.display = 'none'; // Oculta el contenedor
+            // Si el dashboard aparece (usuario entró)
+            if (dashboard && !dashboard.classList.contains('hidden')) {
+                // Detener y ocultar estrellas del login (ahorro de recursos)
+                if(loginStars) {
+                    loginStars.stop();
+                    loginStars.container.style.display = 'none';
                 }
-            });
-            
-            const dashboardElement = document.getElementById('user-dashboard');
-            if(dashboardElement) {
-                observer.observe(dashboardElement, { attributes: true, attributeFilter: ['class'] });
+
+                // Iniciar estrellas del Banner (Solo dentro del recuadro)
+                // Pequeño timeout para asegurar que el div ya tiene tamaño
+                setTimeout(() => {
+                    if (!dashboardStars) {
+                        dashboardStars = initStars('#hero-stars-container', false);
+                    }
+                }, 100);
             }
+        });
+        
+        const dashboardElement = document.getElementById('user-dashboard');
+        if(dashboardElement) {
+            observer.observe(dashboardElement, { attributes: true, attributeFilter: ['class'] });
         }
     </script>
 
