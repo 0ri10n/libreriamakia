@@ -58,7 +58,436 @@
 
         </main>
     </div>
+<<<<<<< Updated upstream
     <script src="script.js"></script>
+=======
+    
+    <div id="modalPrestamo" class="modal hidden">
+        <div id="viewLoanForm" class="modal-content-admin" style="max-width: 700px;">
+            <div class="admin-header" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <span class="material-symbols-outlined">close</span>
+                <h2 style="margin:0; font-size:1.2rem;">Solicitud de Préstamo</h2>
+            </div>
+            
+            <div style="display: flex; gap: 30px;">
+                <div style="width: 180px;">
+                    <img id="loanBookImage" src="" style="width:100%; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <div style="flex: 1; display:flex; flex-direction:column; gap:15px;">
+                    <h3 style="margin:0;">Información del libro</h3>
+                    
+                    <div>
+                        <label style="font-weight:bold; font-size:0.9rem;">Título</label>
+                        <input type="text" id="loanBookTitle" readonly style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; background:#f9f9f9;">
+                        <input type="hidden" id="loanBookId">
+                    </div>
+
+                    <div>
+                        <label style="font-weight:bold; font-size:0.9rem;">Fecha devolución (15 días)</label>
+                        <input type="text" id="loanReturnDate" readonly style="width:100%; padding:8px; border:1px solid #d4c5f9; border-radius:6px; background:#fff; color:#8a4f9e; font-weight:bold;">
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                        <button onclick="cerrarModalPrestamo()" style="padding:10px 20px; background:#eee; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+                        <button id="btnConfirmarSolicitud" style="padding:10px 20px; background:#8a4f9e; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Solicitar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewLoanSuccess" class="modal-content-admin hidden" style="max-width: 500px; text-align:center;">
+            <h2 style="color:#8a4f9e;">¡Solicitud Exitosa! 🎉</h2>
+            <p style="margin:20px 0;">Disfruta tu lectura. Recuerda devolverlo a tiempo.</p>
+            <button onclick="cerrarModalPrestamo()" style="padding:10px 30px; background:#8a4f9e; color:white; border:none; border-radius:8px; cursor:pointer;">Entendido</button>
+        </div>
+
+        <div id="viewLoanError" class="modal-content-admin hidden" style="max-width: 500px; text-align:center;">
+            <h2 style="color:#d32f2f;">Solicitud Declinada 😞</h2>
+            <p style="margin:20px 0;">Lo sentimos, este libro ya no tiene ejemplares disponibles o ya lo tienes en préstamo.</p>
+            <button onclick="cerrarModalPrestamo()" style="padding:10px 30px; background:#ddd; border:none; border-radius:8px; cursor:pointer;">Cerrar</button>
+        </div>
+    </div>
+
+<!-- ============================================ -->
+<!-- VISTA DE ADMINISTRADOR -->
+<!-- ============================================ -->
+<section id="admin-dashboard" class="hidden">
+    <div class="admin-wrapper">
+        
+       <div class="admin-top-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+            <button id="btnVolverUsuario" style="padding: 10px 20px; background: #8a4f9e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                <span class="material-symbols-outlined" style="margin-right:5px;">arrow_back</span> Regresar al Inicio
+            </button>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h2 id="statLibros">0</h2>
+                <p>Número de Libros</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="statPrestamos">0</h2>
+                <p>Número de Préstamos</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="statUsuarios">0</h2>
+                <p>Número de Usuarios</p>
+            </div>
+        </div>
+
+        <div class="admin-controls-header">
+            <h2 class="section-title">Tablas</h2>
+            <div class="search-box-rounded">
+                <input type="text" id="adminSearchInput" placeholder="Buscar libro">
+                <button>🔍</button>
+            </div>
+        </div>
+
+        <div class="admin-tabs-nav">
+            <button class="tab-link active" data-tab="libros">Libros</button>
+            <button class="tab-link" data-tab="prestamos">Préstamos</button>
+            <button class="tab-link" data-tab="usuarios">Usuarios</button>
+        </div>
+
+        <div class="tab-separator"></div>
+
+        <div id="tab-libros" class="tab-pane active">
+            <div class="action-bar">
+                <button class="btn-purple-outline" onclick="confirmarBorradoMasivo()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">delete</span> Borrar Seleccionados
+                </button>
+                <button class="btn-purple-solid" onclick="mostrarFormAgregarLibro()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">add</span> Agregar Libro
+                </button>
+            </div>
+            <div id="listaLibrosAdmin" class="admin-items-list"></div>
+        </div>
+
+        <div id="tab-prestamos" class="tab-pane">
+            <div class="action-bar">
+                <button class="btn-purple-outline" onclick="confirmarBorradoMasivoPrestamos()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">delete</span> Borrar Seleccionados
+                </button>
+                <button class="btn-purple-solid" onclick="mostrarFormAgregarPrestamo()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">add</span> Agregar Préstamo
+                </button>
+            </div>
+            <div id="listaPrestamosAdmin" class="admin-list"></div>
+        </div>
+
+        <div id="tab-usuarios" class="tab-pane">
+            <div class="action-bar">
+                <button class="btn-purple-outline" onclick="confirmarBorradoMasivoUsuarios()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">delete</span> Borrar Seleccionados
+                </button>
+                <button class="btn-purple-solid" onclick="mostrarFormAgregarUsuario()">
+                    <span class="material-symbols-outlined" style="margin-right:5px;">add</span> Agregar Usuario
+                </button>
+            </div>
+            <div id="listaUsuariosAdmin" class="admin-list"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal de Edición de Libro -->
+<div id="modalEditarLibro" class="modal hidden">
+    <div class="modal-content-admin">
+        
+        <div class="modal-admin-header">
+            <div class="header-left-group">
+                <button class="btn-back-icon" onclick="cerrarModalEditar()">‹</button>
+                <h2 id="modalAdminTitle">Editar</h2>
+            </div>
+            <div class="header-right-group">
+                <button type="button" class="btn-cancel-header" onclick="cerrarModalEditar()">Cancelar</button>
+                <button type="button" class="btn-save-header" onclick="document.getElementById('btnSubmitReal').click()">Guardar</button>
+            </div>
+        </div>
+        
+        <form id="formEditarLibro" class="form-admin">
+            <button type="submit" id="btnSubmitReal" style="display:none;"></button>
+            <input type="hidden" id="editBookId">
+            
+            <div class="form-row-admin">
+                <div class="form-col-left">
+                    <label>Link *</label>
+                    <div class="input-with-icon">
+                        <input type="url" id="editImage" placeholder="URL de la imagen" required>
+                        <span class="icon"><span class="material-symbols-outlined">link</span></span>
+                    </div>
+                    <div class="preview-image" id="previewEdit"></div>
+                </div>
+                
+                <div class="form-col-right">
+                    <h3>Información del libro</h3>
+                    
+                    <label>Título *</label>
+                    <input type="text" id="editTitle" placeholder="Título del libro" required>
+                    
+                    <label>Autor *</label>
+                    <input type="text" id="editAuthor" placeholder="Nombre del autor" required>
+                    
+                    <label>Descripción *</label>
+                    <textarea id="editDescription" placeholder="Sinopsis del libro" rows="4" maxlength="100" required></textarea>
+                    <small class="char-count">0/100</small>
+                    
+                    <label>Categoría *</label>
+                    <input type="text" id="editCategory" placeholder="Categoría" required>
+                    
+                    <label>Clasificación de edad *</label>
+                    <select id="editAgeRates" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Todo Público">Todo Público</option>
+                        <option value="+7">8 - 12 años</option>
+                        <option value="+12">+12 años</option>
+                        <option value="+16">+16 años</option>
+                        <option value="+18">+18 años</option>
+                    </select>
+                    
+                    <label>Número de ejemplares *</label>
+                    <input type="number" id="editStock" min="0" required>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="script.js"></script>
+
+<div id="modalAgregarPrestamo" class="modal hidden">
+    <div class="modal-content-admin" style="max-width: 500px;">
+        <div class="modal-admin-header">
+            <h2 style="margin:0;">Agregar Préstamo</h2>
+            <div class="header-right-group">
+                <button class="btn-cancel-header" onclick="document.getElementById('modalAgregarPrestamo').classList.add('hidden')">Cancelar</button>
+                <button class="btn-save-header" onclick="alert('Funcionalidad pendiente de backend')">Guardar</button>
+            </div>
+        </div>
+        <div class="form-admin">
+            <label style="font-weight:600;">ID del Usuario *</label>
+            <input type="text" placeholder="Ej: 64b8f..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+            
+            <label style="font-weight:600; margin-top:15px;">ID del Libro *</label>
+            <input type="text" placeholder="Ej: 64c9a..." style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;">
+        </div>
+    </div>
+</div>
+
+<div id="modalAgregarUsuario" class="modal hidden">
+    <div class="modal-content-admin" style="max-width: 500px;">
+        <div class="modal-admin-header">
+            <h2 style="margin:0;">Agregar Usuario</h2>
+            <button class="btn-cancel-header" type="button" onclick="document.getElementById('modalAgregarUsuario').classList.add('hidden')">Cancelar</button>
+        </div>
+        
+        <form id="formAgregarUsuario" class="form-admin">
+            
+            <label style="font-weight:600;">Nombre Completo *</label>
+            <input type="text" id="newUserName" placeholder="Nombre" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;" required>
+            
+            <label style="font-weight:600; margin-top:15px;">Correo Electrónico *</label>
+            <input type="email" id="newUserEmail" placeholder="email@ejemplo.com" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;" required>
+            
+            <label style="font-weight:600; margin-top:15px;">Contraseña *</label>
+            <input type="password" id="newUserPassword" placeholder="******" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%;" required>
+
+            <label style="font-weight:600; margin-top:15px;">Rol de Usuario *</label>
+            <select id="newUserRole" style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%; background:white;" required>
+                <option value="user">Usuario Normal (Lector)</option>
+                <option value="admin">Administrador</option>
+            </select>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="submit" class="btn-save-header" style="width: 100%; justify-content: center;">Guardar Usuario</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <div id="modalPerfilUsuario" class="modal hidden">
+        <div class="modal-content-admin" style="max-width: 400px;">
+            <div class="modal-admin-header">
+                <h2 style="margin:0;">Mi Perfil</h2>
+                <button class="close-modal" style="position:static;" onclick="document.getElementById('modalPerfilUsuario').classList.add('hidden')">✕</button>
+            </div>
+
+            <div class="profile-info">    
+            <h3 id="profileName" style="margin: 5px 0; color: #333;">Usuario</h3>
+            <p id="profileEmail" style="color:#888; margin:0; font-size: 0.9rem;">Cargando...</p>
+            </div>
+
+            <h2 style="color: var(--primary-color); margin-bottom: 10px;">Personalización</h2>
+
+            <div class="color-grid">
+                <button class="color-btn" style="background:#8a4f9e;" onclick="cambiarTema('#8a4f9e', '#e0ccff')"></button>
+                <button class="color-btn" style="background:#F54927;" onclick="cambiarTema('#F54927', '#FFDAC1')"></button>
+                <button class="color-btn" style="background:#54F527;" onclick="cambiarTema('#54F527', '#D5FBCD')"></button>
+                <button class="color-btn" style="background:#27B0F5;" onclick="cambiarTema('#27B0F5', '#CBEFFF')"></button>
+                <button class="color-btn" style="background:#ff47c2;" onclick="cambiarTema('#ff47c2', '#ffcceb')"></button>
+                <button class="color-btn" style="background:#F9FF47;" onclick="cambiarTema('#F9FF47', '#FEFFD1')"></button>
+            </div>
+
+            <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </div>
+        <script type="module">
+        // Importamos la librería OGL directamente desde la red
+        import { Renderer, Camera, Geometry, Program, Mesh } from 'https://unpkg.com/ogl';
+
+        // Configuración
+        const particleCount = 300;  // Cantidad de estrellas/partículas
+        const particleColors = ['#ffffff', '#e0ccff', '#8a4f9e']; // Blanco y Morados de tu marca
+
+        // Función auxiliar para convertir HEX a RGB
+        const hexToRgb = hex => {
+            hex = hex.replace(/^#/, '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const int = parseInt(hex, 16);
+            return [((int >> 16) & 255) / 255, ((int >> 8) & 255) / 255, (int & 255) / 255];
+        };
+
+        // SHADERS (La matemática visual, copiada tal cual de tu ejemplo)
+        const vertex = `
+            attribute vec3 position;
+            attribute vec4 random;
+            attribute vec3 color;
+            
+            uniform mat4 modelMatrix;
+            uniform mat4 viewMatrix;
+            uniform mat4 projectionMatrix;
+            uniform float uTime;
+            uniform float uSpread;
+            uniform float uBaseSize;
+            
+            varying vec4 vRandom;
+            varying vec3 vColor;
+            
+            void main() {
+                vRandom = random;
+                vColor = color;
+                
+                vec3 pos = position * uSpread;
+                pos.z *= 10.0;
+                
+                vec4 mPos = modelMatrix * vec4(pos, 1.0);
+                float t = uTime;
+                mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
+                mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
+                mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
+                
+                vec4 mvPos = viewMatrix * mPos;
+                gl_PointSize = (uBaseSize * (1.0 + (random.x - 0.5))) / length(mvPos.xyz);
+                gl_Position = projectionMatrix * mvPos;
+            }
+        `;
+
+        const fragment = `
+            precision highp float;
+            uniform float uTime;
+            varying vec4 vRandom;
+            varying vec3 vColor;
+            
+            void main() {
+                vec2 uv = gl_PointCoord.xy;
+                float d = length(uv - vec2(0.5));
+                if(d > 0.5) discard;
+                gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), 1.0);
+            }
+        `;
+
+        // INICIALIZACIÓN
+        const container = document.querySelector('.stars-background');
+        
+        if (container) {
+            const renderer = new Renderer({ depth: false, alpha: true });
+            const gl = renderer.gl;
+            container.appendChild(gl.canvas);
+            gl.clearColor(0, 0, 0, 0);
+
+            const camera = new Camera(gl, { fov: 15 });
+            camera.position.set(0, 0, 20);
+
+            function resize() {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
+            }
+            window.addEventListener('resize', resize, false);
+            resize();
+
+            // Datos de las partículas
+            const count = particleCount;
+            const positions = new Float32Array(count * 3);
+            const randoms = new Float32Array(count * 4);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                let x, y, z, len;
+                do {
+                    x = Math.random() * 2 - 1;
+                    y = Math.random() * 2 - 1;
+                    z = Math.random() * 2 - 1;
+                    len = x * x + y * y + z * z;
+                } while (len > 1 || len === 0);
+                
+                const r = Math.cbrt(Math.random());
+                positions.set([x * r, y * r, z * r], i * 3);
+                randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
+                
+                const col = hexToRgb(particleColors[Math.floor(Math.random() * particleColors.length)]);
+                colors.set(col, i * 3);
+            }
+
+            const geometry = new Geometry(gl, {
+                position: { size: 3, data: positions },
+                random: { size: 4, data: randoms },
+                color: { size: 3, data: colors }
+            });
+
+            const program = new Program(gl, {
+                vertex,
+                fragment,
+                uniforms: {
+                    uTime: { value: 0 },
+                    uSpread: { value: 10 },
+                    uBaseSize: { value: 100 },
+                },
+                transparent: true,
+                depthTest: false
+            });
+
+            const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
+            let requestID;
+
+            // Bucle de Animación
+            function update(t) {
+                requestID = requestAnimationFrame(update);
+                program.uniforms.uTime.value = t * 0.001 * 0.3; // Velocidad 0.3
+                
+                // Rotación suave
+                particles.rotation.y = Math.cos(t * 0.0005) * 0.15;
+                particles.rotation.z += 0.001;
+
+                renderer.render({ scene: particles, camera });
+            }
+            
+            requestID = requestAnimationFrame(update);
+            
+            // Detener animación si el usuario entra al sistema (Optimización)
+            // Esto detecta si el dashboard se vuelve visible
+            const observer = new MutationObserver((mutations) => {
+                const dashboard = document.getElementById('user-dashboard');
+                if (dashboard && !dashboard.classList.contains('hidden')) {
+                    cancelAnimationFrame(requestID); // Pausa las partículas
+                    container.style.display = 'none'; // Oculta el contenedor
+                }
+            });
+            
+            const dashboardElement = document.getElementById('user-dashboard');
+            if(dashboardElement) {
+                observer.observe(dashboardElement, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+    </script>
+>>>>>>> Stashed changes
 </body>
 
 </html>
