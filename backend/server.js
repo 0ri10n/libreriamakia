@@ -24,7 +24,7 @@ app.use(express.json());
 // Servir archivos estáticos del Frontend
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
-// --- RUTAS DE AUTENTICACIÓN ---
+// --- RUTAS DE AUTENTICACIÓN (LOGIN/REGISTER) ---
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -35,7 +35,7 @@ app.post('/register', async (req, res) => {
     user = new User({ name, email, password });
     await user.save(); 
 
-    const payload = { user: { id: user.id, role: user.role } };
+    const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
     console.log(`✅ Usuario guardado en Atlas: ${email}`);
@@ -52,9 +52,9 @@ app.post('/login', async (req, res) => {
     const esCorrecta = await bcrypt.compare(password, user.password);
     if (!esCorrecta) return res.status(400).json({ msg: 'Contraseña incorrecta' });
 
-    const payload = { user: { id: user.id, role: user.role } };
+    const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-    res.json({ token, user: { name: user.name, email: user.email, role: user.role } });
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ msg: 'Error interno' });
   }
@@ -74,7 +74,7 @@ app.get('/api/books', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- API ADMINISTRATIVA (PARA QUE LAS TABLAS SIRVAN) ---
+// API ADMINISTRATIVA PARA TABLAS
 app.get('/api/users', proteger, async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -89,11 +89,15 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// --- SOLUCIÓN DEFINITIVA PARA RENDER (NODE 22+) ---
-// Reemplaza el app.get('/*', ...) que daba error por esta sintaxis:
-app.get('/:any*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+// --- SOLUCIÓN PARA RENDER (EVITA PATH-TO-REGEXP ERROR) ---
+// Usamos un middleware de captura final en lugar de app.get con asteriscos
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+  } else {
+    next();
+  }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor listo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor Makia listo en puerto ${PORT}`));
