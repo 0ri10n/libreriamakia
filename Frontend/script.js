@@ -418,3 +418,94 @@ document.addEventListener('DOMContentLoaded', () => {
     const s = localStorage.getItem('themeSecondary');
     if (p && s) window.cambiarTema(p, s);
 });
+
+
+// ==========================================
+// --- LÓGICA DE PRÉSTAMOS (FALTANTE) ---
+// ==========================================
+
+// 1. Botón "Solicitar Préstamo" (En la sección Mis Libros)
+// Como para pedir un préstamo necesitas elegir un libro específico,
+// este botón te lleva al catálogo para que selecciones uno.
+const btnPedir = document.getElementById('btnPedirPrestamo');
+if (btnPedir) {
+    btnPedir.addEventListener('click', () => {
+        // Simula clic en Inicio para ir al catálogo
+        document.getElementById('btnInicio').click();
+        alert("Por favor, selecciona un libro del catálogo para solicitarlo.");
+    });
+}
+
+// 2. Variables del Modal
+const modalPrestamo = document.getElementById('modalPrestamo');
+const viewForm = document.getElementById('viewLoanForm');
+const viewSuccess = document.getElementById('viewLoanSuccess');
+const viewError = document.getElementById('viewLoanError');
+
+// 3. Función para ABRIR el modal (Se llama desde las tarjetas de libros)
+window.abrirModalPrestamo = function(libro) {
+    // Validar Stock antes de abrir
+    if (libro.Stock !== undefined && libro.Stock < 1) {
+        return alert("Lo sentimos, este libro está agotado.");
+    }
+    
+    // Mostrar el modal y el formulario
+    modalPrestamo.classList.remove('hidden');
+    viewForm.classList.remove('hidden');
+    viewSuccess.classList.add('hidden');
+    viewError.classList.add('hidden');
+
+    // Llenar los datos del libro en el maquetado
+    document.getElementById('loanBookImage').src = libro.image || 'placeholder.jpg';
+    document.getElementById('loanBookTitle').value = libro.title;
+    document.getElementById('loanBookId').value = libro._id;
+    
+    // Calcular fecha de devolución (Hoy + 15 días)
+    const hoy = new Date();
+    const dev = new Date();
+    dev.setDate(hoy.getDate() + 15);
+    document.getElementById('loanReturnDate').value = dev.toLocaleDateString('es-MX');
+};
+
+// 4. Función para CERRAR el modal
+window.cerrarModalPrestamo = function() {
+    modalPrestamo.classList.add('hidden');
+};
+
+// 5. Confirmar Solicitud (Enviar a la Base de Datos)
+document.getElementById('btnConfirmarSolicitud').addEventListener('click', async () => {
+    const bookId = document.getElementById('loanBookId').value;
+    const token = localStorage.getItem('token');
+
+    if (!token) return alert("Tu sesión expiró. Por favor inicia sesión de nuevo.");
+
+    try {
+        // Usamos API_URL como indicaste
+        const res = await fetch(`${API_URL}/api/loans`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ bookId })
+        });
+        
+        // Ocultar formulario para mostrar resultado
+        viewForm.classList.add('hidden');
+
+        if (res.ok) {
+            // ÉXITO: Mostrar pantalla morada
+            viewSuccess.classList.remove('hidden');
+            // Recargar datos de fondo para que se actualice el stock y la lista
+            cargarCatalogo(); 
+            cargarMisPrestamos(); 
+        } else {
+            // ERROR: Mostrar pantalla de error
+            const data = await res.json();
+            console.error("Error préstamo:", data);
+            viewError.classList.remove('hidden');
+        }
+    } catch (e) { 
+        alert("Error de conexión con el servidor."); 
+    }
+});
