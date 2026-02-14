@@ -5,6 +5,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// IMPORTAR CONEXIÓN Y MODELOS
 const connectDB = require('./mongoose');
 const User = require('./models/users');
 const Book = require('./models/books'); 
@@ -12,12 +13,14 @@ const Loan = require('./models/loans');
 const proteger = require('./middleware/authMiddleware');
 
 const app = express();
-connectDB(); //
+connectDB(); 
 
+// MIDDLEWARES
 app.use(cors());          
 app.use(express.json());  
 
-// SERVIR ESTÁTICOS: Ajustado para la estructura /backend y /Frontend
+// Servir archivos estáticos del Frontend
+// Importante: Verifica que la carpeta se llame 'Frontend' exactamente
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
@@ -32,7 +35,7 @@ app.post('/login', async (req, res) => {
 
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-    res.json({ token }); 
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ msg: 'Error en el servidor' });
   }
@@ -51,11 +54,11 @@ app.post('/register', async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
   } catch (err) {
-    res.status(500).json({ msg: 'Error en registro: ' + err.message });
+    res.status(500).json({ msg: 'Error en registro' });
   }
 });
 
-// --- API ADMINISTRATIVA (Necesaria para los contadores y tablas) ---
+// --- API ADMINISTRATIVA ---
 app.get('/api/users', proteger, async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -74,6 +77,7 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     }
 });
 
+// --- RUTAS DE LIBROS ---
 app.get('/api/books', async (req, res) => {
     try {
         const { busqueda, categoria } = req.query;
@@ -90,8 +94,9 @@ app.get('/api/books', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// FALLBACK PARA SPA
-app.get('*', (req, res) => {
+// --- CORRECCIÓN PARA RENDER (SINTAXIS RUTA COMODÍN) ---
+// Cambiamos '*' por '(.*)' para evitar el PathError en versiones nuevas
+app.get('(.*)', (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
 
