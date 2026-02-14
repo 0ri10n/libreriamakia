@@ -150,6 +150,8 @@ app.get('/api/loans/all', proteger, async (req, res) => {
 app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
+        
+        const userId = req.body.userId || req.user.id;
 
         // 1. Buscar el libro primero para verificar si existe y si tiene Stock
         const book = await Book.findById(bookId);
