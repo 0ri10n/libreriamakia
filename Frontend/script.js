@@ -127,13 +127,11 @@ async function cargarCatalogo(busqueda = '', categoria = '') {
 }
 
 // --- DASHBOARD ADMIN (ACTUALIZA CONTADORES Y TABLAS) ---
-
-// --- DASHBOARD ADMIN (VERSIÓN BLINDADA: CARGA INDEPENDIENTE) ---
 async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
     
-    // Elementos visuales (Contadores)
+    // Contadores visuales
     const statLibros = document.getElementById('statLibros');
     const statPrestamos = document.getElementById('statPrestamos');
     const statUsuarios = document.getElementById('statUsuarios');
@@ -141,67 +139,55 @@ async function cargarAdminDashboard() {
     if (!lista) return;
     lista.innerHTML = '<p style="text-align:center">Cargando panel...</p>';
 
-    // ESTRATEGIA: Lanzar 3 peticiones independientes.
-    // Si una falla, las otras SEGUIRÁN funcionando y mostrando sus números.
-
-    // 1. CARGAR LIBROS (Y pintar la tabla)
-    fetch(`${API_URL}/api/books`)
-        .then(res => res.json())
-        .then(libros => {
-            // Actualizar contador de libros
-            if(statLibros) statLibros.innerText = libros.length || 0;
-
-            // Pintar la tabla
-            lista.innerHTML = '';
-            if (libros.length === 0) {
-                lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
-                return;
-            }
-            libros.forEach(libro => {
-                const div = document.createElement('div');
-                div.className = 'admin-list-item';
-                // Escapar comillas para evitar errores en HTML
-                const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                
-                div.innerHTML = `
-                    <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
-                    <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
-                    <div class="admin-item-info">
-                        <h3>${libro.title}</h3>
-                        <p>${libro.author}</p>
-                        <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
-                    </div>
-                    <div class="admin-item-actions">
-                        <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
-                            <span class="material-symbols-outlined">edit</span>
-                        </button>
-                        <button class="btn-icon-square" style="color:red" onclick="eliminarLibro('${libro._id}')">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>`;
-                lista.appendChild(div);
-            });
-        })
-        .catch(err => {
-            console.error("Error cargando libros:", err);
-            lista.innerHTML = '<p style="color:red; text-align:center;">Error al cargar libros.</p>';
-        });
-
-    // 2. CARGAR PRÉSTAMOS (Independiente)
-    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
-        .then(res => res.json())
-        .then(loans => {
-            if(statPrestamos) statPrestamos.innerText = loans.length || 0;
-        })
-        .catch(err => console.error("Error cargando préstamos:", err));
-
-    // 3. CARGAR USUARIOS (Independiente)
+    // 1. Cargar Contadores de USUARIOS (Independiente)
     fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(res => res.json())
-        .then(users => {
-            if(statUsuarios) statUsuarios.innerText = users.length || 0;
-        })
-        .catch(err => console.error("Error cargando usuarios:", err));
+        .then(users => { if(statUsuarios) statUsuarios.innerText = users.length || 0; })
+        .catch(e => console.error("Error usuarios:", e));
+
+    // 2. Cargar Contadores de PRÉSTAMOS (Independiente)
+    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
+        .then(res => res.json())
+        .then(loans => { if(statPrestamos) statPrestamos.innerText = loans.length || 0; })
+        .catch(e => console.error("Error préstamos:", e));
+
+    // 3. Cargar LIBROS y llenar la tabla principal
+    try {
+        const res = await fetch(`${API_URL}/api/books`);
+        const libros = await res.json();
+
+        if(statLibros) statLibros.innerText = libros.length || 0;
+        lista.innerHTML = '';
+
+        if (libros.length === 0) {
+            lista.innerHTML = '<p style="text-align:center">No hay libros registrados.</p>';
+            return;
+        }
+
+        libros.forEach(libro => {
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            const libroSafe = JSON.stringify(libro).replace(/"/g, '&quot;').replace(/'/g, "\\'");
+            
+            div.innerHTML = `
+                <input type="checkbox" class="select-item" data-id="${libro._id}" style="margin-right:15px; transform: scale(1.2);">
+                <img src="${libro.image || 'placeholder.jpg'}" class="admin-item-img" style="width:50px; height:70px; object-fit:cover; margin-right:15px; border-radius:4px;">
+                <div class="admin-item-info">
+                    <h3>${libro.title}</h3>
+                    <p>${libro.author}</p>
+                    <p style="font-size:0.85rem; color:#666;">Stock: <strong>${libro.Stock}</strong></p>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="btn-icon-square" onclick='abrirModalEditar(${libroSafe})'>
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>`;
+            lista.appendChild(div);
+        });
+    } catch (e) {
+        console.error("Error libros:", e);
+        lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión.</p>';
+    }
 }
 
 // --- FUNCIONES DE ADMINISTRACIÓN (EDITAR/ELIMINAR) ---
@@ -286,7 +272,7 @@ async function cargarMisPrestamos() {
     const token = localStorage.getItem('token');
     
     if (!lista) return;
-    lista.innerHTML = '<p>Cargando préstamos...</p>';
+    lista.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Cargando tus préstamos...</p>';
 
     try {
         const res = await fetch(`${API_URL}/api/loans`, {
@@ -295,16 +281,20 @@ async function cargarMisPrestamos() {
         
         if (!res.ok) throw new Error('Error al cargar');
         
-        const prestamos = await res.json();
+        const prestamosRaw = await res.json();
+        
+        // FILTRO CRÍTICO: Eliminar préstamos donde el libro ya no existe (es null)
+        const prestamos = prestamosRaw.filter(p => p.book !== null);
+
         lista.innerHTML = '';
 
         if (prestamos.length === 0) {
-            lista.innerHTML = '<div style="text-align:center; padding:40px;"><p>No tienes préstamos activos.</p></div>';
+            lista.innerHTML = '<div style="text-align:center; padding:40px;"><p style="color:#888;">No tienes préstamos activos.</p></div>';
             return;
         }
 
         prestamos.forEach(p => {
-            const libro = p.book || { title: 'Desconocido', image: '' };
+            const libro = p.book; // Ya sabemos que no es null por el filtro
             const fecha = new Date(p.returnDate).toLocaleDateString();
             
             const card = document.createElement('div');
@@ -326,7 +316,7 @@ async function cargarMisPrestamos() {
         });
     } catch (e) {
         console.error(e);
-        lista.innerHTML = '<p>Error de conexión al cargar préstamos.</p>';
+        lista.innerHTML = '<p style="text-align:center; color:red;">Error de conexión al cargar préstamos.</p>';
     }
 }
 
@@ -391,30 +381,33 @@ document.getElementById('formEditarLibro').addEventListener('submit', async (e) 
 
 // 4. Borrado Masivo (Checkboxes)
 window.confirmarBorradoMasivo = async function() {
-    // Busca todos los checkboxes marcados
-    const ids = Array.from(document.querySelectorAll('.select-item:checked')).map(cb => cb.dataset.id);
+    const checkboxes = document.querySelectorAll('.select-item:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
     
     if (ids.length === 0) return alert("Selecciona al menos un libro para borrar.");
-    if (!confirm(`¿Estás seguro de borrar ${ids.length} libros?`)) return;
+    if (!confirm(`¿Estás seguro de borrar ${ids.length} libros? Esta acción es irreversible.`)) return;
 
     const token = localStorage.getItem('token');
-    try {
-        const res = await fetch(`${API_URL}/api/books/batch`, {
-            method: 'DELETE',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify({ ids })
-        });
+    let errores = 0;
 
-        if (res.ok) {
-            alert("Libros eliminados correctamente.");
-            cargarAdminDashboard();
-        } else {
-            alert("Error al intentar borrar.");
+    // Procesar borrado secuencial (uno tras otro)
+    for (const id of ids) {
+        try {
+            await fetch(`${API_URL}/api/books/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) {
+            errores++;
         }
-    } catch (e) { alert("Error de conexión."); }
+    }
+
+    if (errores > 0) {
+        alert(`Operación terminada con ${errores} errores.`);
+    } else {
+        alert("Libros eliminados correctamente.");
+    }
+    cargarAdminDashboard(); // Refrescar la lista
 };
 
 // 5. Funciones visuales para botones pendientes (Préstamos/Usuarios)
