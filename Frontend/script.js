@@ -49,6 +49,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('userEmail', email);
+            localStorage.setItem('userRole', data.role);
             entrarAlSistema();
         } else {
             alert('Error: ' + data.msg);
@@ -77,6 +78,7 @@ registerForm.addEventListener('submit', async (e) => {
             alert('¡Cuenta creada con éxito!');
             localStorage.setItem('token', data.token);
             localStorage.setItem('userEmail', email);
+            localStorage.setItem('userRole', data.role);
             entrarAlSistema();
         } else {
             alert('Error: ' + data.msg);
@@ -87,9 +89,20 @@ registerForm.addEventListener('submit', async (e) => {
 });
 
 function entrarAlSistema() {
+    const role = localStorage.getItem('userRole');
+    const btnAdmin = document.getElementById('btnVerAdmin');
+
     document.querySelector('.stars-background').classList.add('hidden');
     document.querySelector('.main-container').classList.add('hidden');
     document.getElementById('user-dashboard').classList.remove('hidden');
+
+    
+    if (role === 'admin') {
+        btnAdmin.classList.remove('hidden'); 
+    } else {
+        btnAdmin.classList.add('hidden');    
+    }
+
     cargarCatalogo();
 }
 
@@ -851,4 +864,27 @@ if (formEdicion) {
             return false;
         }
     }, true); // UseCapture para ejecutarse primero
+}
+
+// --- LÓGICA DE BÚSQUEDA FILTRADA PARA ADMIN ---
+const inputBusquedaAdmin = document.getElementById('txtBusquedaAdmin');
+
+if (inputBusquedaAdmin) {
+    inputBusquedaAdmin.addEventListener('input', (e) => {
+        const termino = e.target.value.toLowerCase();
+        // Buscamos todos los elementos de la lista actual (sean libros, usuarios o préstamos)
+        const items = document.querySelectorAll('.admin-list-item');
+
+        items.forEach(item => {
+            // El texto principal siempre está en el H3
+            const textoPrincipal = item.querySelector('h3').innerText.toLowerCase();
+            const textoSecundario = item.querySelector('.admin-item-info').innerText.toLowerCase();
+            
+            if (textoPrincipal.includes(termino) || textoSecundario.includes(termino)) {
+                item.style.display = 'flex'; // Mostrar si coincide
+            } else {
+                item.style.display = 'none'; // Ocultar si no coincide
+            }
+        });
+    });
 }

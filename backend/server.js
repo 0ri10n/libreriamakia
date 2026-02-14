@@ -26,8 +26,6 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
-// ... (Tus imports actuales arriba)
-
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   
@@ -49,14 +47,17 @@ app.post('/register', async (req, res) => {
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     
-    res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
-    console.log(`✅ Usuario guardado en Atlas: ${email}`);
 
-  } catch (err) {
-    console.error("❌ ERROR AL REGISTRAR:", err.message);
-    res.status(500).json({ msg: 'Error de base de datos: ' + err.message });
-  }
-});
+    res.status(201).json({ 
+        token, 
+        role: user.role, 
+        msg: 'Usuario registrado con éxito' 
+    });
+    } catch (err) {
+        console.error("❌ ERROR AL REGISTRAR:", err.message);
+        res.status(500).json({ msg: 'Error de base de datos: ' + err.message });
+    }
+    });
 
 // ... (Resto de tu server.js)
 
@@ -71,7 +72,10 @@ app.post('/login', async (req, res) => {
 
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-    res.json({ token });
+    res.json({ 
+    token, 
+    role: user.role 
+});
   } catch (err) {
     res.status(500).json({ msg: 'Error en el servidor' });
   }
