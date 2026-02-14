@@ -138,8 +138,9 @@ app.get('/api/users', proteger, async (req, res) => {
     } catch (err) { res.status(500).json({ msg: "Error al obtener usuarios" }); }
 });
 
-app.get('/api/loans/all', proteger, async (req, res) => {
+app.get('/api/loans', proteger, async (req, res) => {
     try {
+        // Busca solo los préstamos donde user coincida con el ID del token
         const loans = await Loan.find({ user: req.user.id }).populate('book');
         res.json(loans);
     } catch (err) { 
