@@ -32,7 +32,6 @@ document.getElementById('backFromRegister').addEventListener('click', () => {
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 
-// Login
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -58,7 +57,6 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Registro (Añadido)
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('regName').value;
@@ -126,7 +124,36 @@ async function cargarCatalogo(busqueda = '', categoria = '') {
     } catch (e) { grid.innerHTML = 'Error al cargar libros.'; }
 }
 
-// --- DASHBOARD ADMIN (ACTUALIZA CONTADORES Y TABLAS) ---
+// --- GESTIÓN DE PRÉSTAMOS (NUEVO: Para que funcione el clic en el libro) ---
+
+window.abrirModalPrestamo = function(libro) {
+    if(libro.Stock < 1) return alert("Libro agotado temporalmente");
+    document.getElementById('modalPrestamo').classList.remove('hidden');
+    document.getElementById('loanBookTitle').value = libro.title;
+    document.getElementById('loanBookId').value = libro._id;
+    document.getElementById('loanBookImage').src = libro.image;
+};
+
+window.cerrarModalPrestamo = () => document.getElementById('modalPrestamo').classList.add('hidden');
+
+document.getElementById('btnConfirmarSolicitud')?.addEventListener('click', async () => {
+    const bookId = document.getElementById('loanBookId').value;
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_URL}/api/loans`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ bookId })
+        });
+        if(res.ok) {
+            alert("Préstamo solicitado con éxito");
+            cerrarModalPrestamo();
+            cargarCatalogo();
+        }
+    } catch (e) { alert("Error al procesar préstamo"); }
+});
+
+// --- DASHBOARD ADMIN ---
 
 async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
@@ -145,7 +172,6 @@ async function cargarAdminDashboard() {
         const prestamos = await resL.json();
         const usuarios = await resU.json();
 
-        // Actualizar contadores visuales
         document.getElementById('statLibros').innerText = libros.length;
         document.getElementById('statPrestamos').innerText = prestamos.length;
         document.getElementById('statUsuarios').innerText = usuarios.length;
@@ -174,17 +200,47 @@ async function cargarAdminDashboard() {
     } catch (e) { console.error("Error dashboard:", e); }
 }
 
-// --- FUNCIONES DE ADMINISTRACIÓN (EDITAR/ELIMINAR) ---
+// --- FUNCIONES DE ADMINISTRACIÓN (EDITAR/GUARDAR) ---
 
 window.abrirModalEditar = function(libro) {
-    const modal = document.getElementById('modalEditarLibro');
-    document.getElementById('editBookId').value = libro._id;
-    document.getElementById('editTitle').value = libro.title;
-    document.getElementById('editAuthor').value = libro.author;
-    document.getElementById('editStock').value = libro.Stock;
-    document.getElementById('editImage').value = libro.image;
-    modal.classList.remove('hidden');
+    document.getElementById('editBookId').value = libro._id || '';
+    document.getElementById('editTitle').value = libro.title || '';
+    document.getElementById('editAuthor').value = libro.author || '';
+    document.getElementById('editStock').value = libro.Stock || 0;
+    document.getElementById('editImage').value = libro.image || '';
+    document.getElementById('modalEditarLibro').classList.remove('hidden');
 };
+
+window.cerrarModalEditar = () => document.getElementById('modalEditarLibro').classList.add('hidden');
+
+// Evento para GUARDAR cambios del libro (NUEVO: Para que los botones guarden)
+document.getElementById('formEditarLibro')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editBookId').value;
+    const token = localStorage.getItem('token');
+    const datos = {
+        title: document.getElementById('editTitle').value,
+        author: document.getElementById('editAuthor').value,
+        Stock: document.getElementById('editStock').value,
+        image: document.getElementById('editImage').value
+    };
+
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/api/books/${id}` : `${API_URL}/api/books`;
+
+    try {
+        const res = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(datos)
+        });
+        if(res.ok) {
+            alert("Cambios guardados correctamente");
+            cerrarModalEditar();
+            cargarAdminDashboard();
+        }
+    } catch (e) { alert("Error al guardar datos"); }
+});
 
 window.eliminarLibro = async (id) => {
     if(!confirm("¿Eliminar este libro?")) return;
@@ -211,13 +267,11 @@ document.getElementById('btnVolverUsuario').addEventListener('click', () => {
     document.getElementById('user-dashboard').classList.remove('hidden');
 });
 
-// Buscador
 document.getElementById('btnBuscar').addEventListener('click', () => {
     const term = document.getElementById('txtBusqueda').value;
     cargarCatalogo(term);
 });
 
-// Categorías
 document.getElementById('containerCategorias').addEventListener('click', (e) => {
     if (e.target.classList.contains('pill')) {
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
