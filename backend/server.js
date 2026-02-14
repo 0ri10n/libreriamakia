@@ -12,12 +12,12 @@ const Loan = require('./models/loans');
 const proteger = require('./middleware/authMiddleware');
 
 const app = express();
-connectDB(); 
+connectDB(); //
 
 app.use(cors());          
 app.use(express.json());  
 
-// Servir estáticos: Sube un nivel desde /backend para entrar a /Frontend
+// SERVIR ESTÁTICOS: Ajustado para la estructura /backend y /Frontend
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
@@ -55,7 +55,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// --- API ADMINISTRATIVA ---
+// --- API ADMINISTRATIVA (Necesaria para los contadores y tablas) ---
 app.get('/api/users', proteger, async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -78,14 +78,19 @@ app.get('/api/books', async (req, res) => {
     try {
         const { busqueda, categoria } = req.query;
         let query = {};
-        if (busqueda) query.$or = [{ title: { $regex: busqueda, $options: 'i' } }, { author: { $regex: busqueda, $options: 'i' } }];
+        if (busqueda) {
+            query.$or = [
+                { title: { $regex: busqueda, $options: 'i' } },
+                { author: { $regex: busqueda, $options: 'i' } }
+            ];
+        }
         if (categoria && categoria !== 'Todo') query.category = categoria;
         const books = await Book.find(query);
         res.json(books);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// SPA Fallback
+// FALLBACK PARA SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
