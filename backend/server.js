@@ -15,9 +15,9 @@ const proteger = require('./middleware/authMiddleware');
 const app = express();
 
 // Iniciar Conexión a MongoDB Atlas
-connectDB(); 
+connectDB(); // Asegura dbName: 'LibreriaMakia' en tu archivo mongoose.js
 
-// MIDDLEWARES GLOBALES
+// MIDDLEWARES GLOBALES 
 app.use(cors());          
 app.use(express.json());  
 
@@ -29,10 +29,8 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    if (!name || !email || !password) {
-        return res.status(400).json({ msg: 'Faltan datos obligatorios' });
-    }
-
+    if (!name || !email || !password) return res.status(400).json({ msg: 'Faltan datos obligatorios' });
+    
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
 
@@ -64,12 +62,11 @@ app.post('/login', async (req, res) => {
     
     res.json({ token, user: { name: user.name, email: user.email, role: user.role } });
   } catch (err) {
-    res.status(500).json({ msg: 'Error interno del servidor' });
+    res.status(500).json({ msg: 'Error en el servidor' });
   }
 });
 
-// --- API DE LIBROS Y PRÉSTAMOS (Basado en tu original) ---
-
+// --- API DE LIBROS Y PRÉSTAMOS ---
 app.get('/api/books', async (req, res) => {
     try {
         const { busqueda, categoria } = req.query;
@@ -83,6 +80,22 @@ app.get('/api/books', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/api/loans', proteger, async (req, res) => {
+    try {
+        const loans = await Loan.find({ user: req.user.id }).populate('book');
+        res.json(loans);
+    } catch (err) { res.status(500).json({ msg: "Error al obtener préstamos" }); }
+});
+
+app.post('/api/loans', proteger, async (req, res) => {
+    try {
+        const loan = new Loan({ user: req.user.id, book: req.body.bookId });
+        await loan.save();
+        res.status(201).json(loan);
+    } catch (err) { res.status(400).json({ msg: "Error al procesar préstamo" }); }
+});
+
+// Rutas de administración adicionales...
 app.get('/api/loans/all', proteger, async (req, res) => {
     try {
         const loans = await Loan.find().populate('book').populate('user', 'email');
@@ -90,9 +103,9 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// --- SOLUCIÓN PARA RENDER (CORREGIDO PARA NODE 22+) ---
-// Usamos '/*' para evitar el error PathError
-app.get('/*', (req, res) => {
+// --- SOLUCIÓN PARA RENDER (NODE 22+) ---
+// Usamos el asterisco directo para evitar errores de parámetros en la nueva versión de Express
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
 
