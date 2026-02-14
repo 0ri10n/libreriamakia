@@ -13,6 +13,8 @@ const Loan = require('./models/loans');
 const proteger = require('./middleware/authMiddleware');
 
 const app = express();
+
+// Iniciar Conexión a MongoDB Atlas
 connectDB(); 
 
 // MIDDLEWARES
@@ -23,11 +25,43 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
+
+// Registro de Usuario (CORREGIDO PARA GUARDAR EN ATLAS)
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    // 1. Verificar si el usuario ya existe
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
+
+    // 2. Crear instancia del usuario
+    user = new User({ name, email, password });
+    
+    // 3. GUARDAR EN MONGO ATLAS
+    await user.save();
+
+    // 4. Generar Token
+    const payload = { user: { id: user.id } };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
+    
+    res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
+    console.log(`✅ Usuario guardado correctamente: ${email}`);
+
+  } catch (err) {
+    console.error("❌ Error en registro:", err.message);
+    res.status(500).json({ msg: 'Error al conectar con la base de datos' });
+  }
+});
+
+// Login de Usuario
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
-    let user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: 'Usuario no encontrado' });
+    const user = await User.findOne({ email });
+    if (!user) {
+        console.log(`⚠️ Intento de login fallido: ${email} (No encontrado)`);
+        return res.status(400).json({ msg: 'Usuario no encontrado' });
+    }
 
     const esCorrecta = await bcrypt.compare(password, user.password);
     if (!esCorrecta) return res.status(400).json({ msg: 'Contraseña incorrecta' });
@@ -35,25 +69,9 @@ app.post('/login', async (req, res) => {
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     res.json({ token });
+
   } catch (err) {
     res.status(500).json({ msg: 'Error en el servidor' });
-  }
-});
-
-app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
-
-    user = new User({ name, email, password });
-    await user.save();
-
-    const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-    res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
-  } catch (err) {
-    res.status(500).json({ msg: 'Error en registro' });
   }
 });
 
@@ -92,11 +110,10 @@ app.get('/api/books', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- SOLUCIÓN DEFINITIVA AL ERROR DE RENDER ---
-// Usamos una expresión regular pura /.*/ para capturar todo sin usar paréntesis de captura conflictivos
+// --- SOLUCIÓN PARA RENDER (EXPRESIÓN REGULAR PURA) ---
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));

@@ -9,19 +9,17 @@ const connectDB = async () => {
       return;
     }
 
-    // Configuración para asegurar que use una base de datos específica y no "test"
+    // Forzamos el uso de la base de datos LibreriaMakia
     await mongoose.connect(uri, {
-      dbName: 'LibreriaMakia' // Esto asegura que todos tus usuarios se guarden aquí
+      dbName: 'LibreriaMakia' 
     });
 
     console.log('✅ Conexión exitosa a MongoDB Atlas: LibreriaMakia');
   } catch (err) {
     console.error('❌ Error de conexión:', err.message);
-    
     if (err.message.includes('IP not whitelisted')) {
-      console.log('👉 ACCIÓN REQUERIDA: Ve a Atlas > Network Access y agrega 0.0.0.0/0');
+      console.log('👉 ACCIÓN: Agrega 0.0.0.0/0 en Network Access de Atlas');
     }
-    
     process.exit(1);
   }
 };
