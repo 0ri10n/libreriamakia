@@ -561,8 +561,8 @@ textarea {
 }
 
 .admin-wrapper {
-    padding: 30px 60px;
-    max-width: 1400px;
+    padding: 40px 60px;
+    max-width: 95%;
     margin: 0 auto;
 }
 
@@ -575,9 +575,9 @@ textarea {
 }
 
 .admin-header h1 {
-    font-size: 1.8rem;
+    font-size: 2.5rem;
     color: #1a1a1a;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* Tarjetas de estadísticas */
@@ -1227,26 +1227,35 @@ textarea {
 .admin-list-item {
     display: flex;
     align-items: center;
-    padding: 20px;
+    padding: 25px 30px; /* Más espacio interno en cada fila */
     border-bottom: 1px solid #eee;
     background: white;
+    margin-bottom: 10px; /* Separación entre filas */
+    border-radius: 12px; /* Bordes redondeados en cada fila */
+    transition: background 0.2s;
+}
+
+.admin-list-item:hover {
+    background-color: #f9f9f9;
 }
 
 .admin-item-img {
-    width: 80px;
-    height: 110px;
+    width: 100px;
+    height: 140px;
     object-fit: cover;
-    border-radius: 5px;
-    margin-right: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-right: 35px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .admin-item-info {
     flex: 1;
+    font-size: 1.1rem; 
+    color: #555;
 }
 
-.admin-item-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #000; }
-.admin-item-info p { margin: 0; font-size: 0.85rem; color: #666; }
+.admin-item-info h3 { margin: 0 0 8px 0; font-size: 1.5rem; color: #000; font-weight: 700;}
+.admin-item-info p { margin: 0; font-size: 1.1rem; color: #666; }
 .admin-item-stats { margin-top: 10px; font-size: 0.8rem; color: #888; display: flex; gap: 15px; }
 
 .admin-item-actions {
@@ -1256,11 +1265,12 @@ textarea {
 }
 
 .btn-icon-square {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    font-size: 1.5rem;
     border: none;
-    background-color: #e0ccff; /* Cuadrito lila */
+    background-color: #e0ccff; 
     color: #4a0072;
     font-size: 1.2rem;
     cursor: pointer;
