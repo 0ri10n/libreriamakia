@@ -17,7 +17,7 @@ const app = express();
 // Iniciar Conexión a MongoDB Atlas
 connectDB(); 
 
-// MIDDLEWARES
+// MIDDLEWARES GLOBALES
 app.use(cors());          
 app.use(express.json());  
 
@@ -26,47 +26,31 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
-// --- REGISTRO DE USUARIO CORREGIDO ---
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    // 1. Verificar si ya existe
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
 
-    // 2. Crear instancia
     user = new User({ name, email, password });
-    
-    // 3. GUARDAR Y ESPERAR CONFIRMACIÓN DE MONGODB (Paso vital)
-    const usuarioGuardado = await user.save();
-    
-    if (!usuarioGuardado) {
-        throw new Error("No se pudo confirmar el guardado en Atlas");
-    }
+    await user.save();
 
-    console.log(`✅ Registro exitoso en Atlas: ${email}`);
-
-    // 4. Generar Token
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
-
+    console.log(`✅ Usuario guardado: ${email}`);
   } catch (err) {
-    console.error("❌ ERROR REAL EN ATLAS:", err.message);
-    res.status(500).json({ msg: 'Error de escritura en base de datos: ' + err.message });
+    console.error("❌ Error en registro:", err.message);
+    res.status(500).json({ msg: 'Error de base de datos' });
   }
 });
 
-// Login de Usuario
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) {
-        console.log(`⚠️ Intento de login fallido: ${email} (No encontrado)`);
-        return res.status(400).json({ msg: 'Usuario no encontrado' });
-    }
+    if (!user) return res.status(400).json({ msg: 'Usuario no encontrado' });
 
     const esCorrecta = await bcrypt.compare(password, user.password);
     if (!esCorrecta) return res.status(400).json({ msg: 'Contraseña incorrecta' });
@@ -74,30 +58,12 @@ app.post('/login', async (req, res) => {
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     res.json({ token });
-
   } catch (err) {
     res.status(500).json({ msg: 'Error en el servidor' });
   }
 });
 
-// --- API ADMINISTRATIVA ---
-app.get('/api/users', proteger, async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ msg: "Error al obtener usuarios" });
-    }
-});
-
-app.get('/api/loans/all', proteger, async (req, res) => {
-    try {
-        const loans = await Loan.find().populate('book');
-        res.json(loans);
-    } catch (err) {
-        res.status(500).json({ msg: "Error al obtener préstamos" });
-    }
-});
+// --- API DE LIBROS (LECTURA, CREACIÓN, EDICIÓN, BORRADO) ---
 
 app.get('/api/books', async (req, res) => {
     try {
@@ -113,6 +79,73 @@ app.get('/api/books', async (req, res) => {
         const books = await Book.find(query);
         res.json(books);
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Agregar Libro (Nuevo)
+app.post('/api/books', proteger, async (req, res) => {
+    try {
+        const newBook = new Book(req.body);
+        await newBook.save();
+        res.status(201).json(newBook);
+    } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+// Editar Libro (Nuevo)
+app.put('/api/books/:id', proteger, async (req, res) => {
+    try {
+        const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedBook);
+    } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+// Borrar Libro (Nuevo)
+app.delete('/api/books/:id', proteger, async (req, res) => {
+    try {
+        await Book.findByIdAndDelete(req.params.id);
+        res.json({ msg: "Libro eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Borrado Masivo (Checkboxes)
+app.delete('/api/books/batch', proteger, async (req, res) => {
+    try {
+        const { ids } = req.body;
+        await Book.deleteMany({ _id: { $in: ids } });
+        res.json({ msg: "Libros eliminados con éxito" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- API ADMINISTRATIVA (CONTADORES) ---
+
+app.get('/api/users', proteger, async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (err) { res.status(500).json({ msg: "Error al obtener usuarios" }); }
+});
+
+app.get('/api/loans/all', proteger, async (req, res) => {
+    try {
+        const loans = await Loan.find().populate('book');
+        res.json(loans);
+    } catch (err) { res.status(500).json({ msg: "Error al obtener préstamos" }); }
+});
+
+// --- RUTAS DE PRÉSTAMOS (USUARIO) ---
+
+app.get('/api/loans', proteger, async (req, res) => {
+    try {
+        const loans = await Loan.find({ user: req.user.id }).populate('book');
+        res.json(loans);
+    } catch (err) { res.status(500).json({ msg: "Error" }); }
+});
+
+app.post('/api/loans', proteger, async (req, res) => {
+    try {
+        const loan = new Loan({ user: req.user.id, book: req.body.bookId });
+        await loan.save();
+        res.status(201).json(loan);
+    } catch (err) { res.status(400).json({ msg: "Error al procesar préstamo" }); }
 });
 
 // --- SOLUCIÓN PARA RENDER (EXPRESIÓN REGULAR PURA) ---
