@@ -509,3 +509,196 @@ document.getElementById('btnConfirmarSolicitud').addEventListener('click', async
         alert("Error de conexión con el servidor."); 
     }
 });
+
+// =========================================================
+// --- LÓGICA DE PESTAÑAS Y TABLAS DEL ADMINISTRADOR ---
+// =========================================================
+
+// 1. Lógica de Pestañas (Tabs)
+// Esto hace que al hacer clic en "Préstamos" o "Usuarios", cambie la vista
+document.querySelectorAll('.tab-link').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Quitar clase active de todos
+        document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        
+        // Activar el actual
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+
+        // Cargar datos según la pestaña seleccionada
+        if (tabId === 'libros') cargarAdminDashboard(); // Ya existente
+        if (tabId === 'prestamos') cargarTablaPrestamos();
+        if (tabId === 'usuarios') cargarTablaUsuarios();
+    });
+});
+
+// 2. Cargar Tabla de Usuarios
+async function cargarTablaUsuarios() {
+    const contenedor = document.getElementById('listaUsuariosAdmin');
+    const token = localStorage.getItem('token');
+    
+    contenedor.innerHTML = '<p style="text-align:center; padding:20px;">Cargando usuarios...</p>';
+
+    try {
+        const res = await fetch(`${API_URL}/api/users`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Error al cargar usuarios');
+        const usuarios = await res.json();
+
+        contenedor.innerHTML = '';
+        if (usuarios.length === 0) {
+            contenedor.innerHTML = '<p style="text-align:center;">No hay usuarios registrados.</p>';
+            return;
+        }
+
+        usuarios.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            div.innerHTML = `
+                <div style="width:50px; height:50px; background:#e0ccff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:15px; color:#4a0072; font-weight:bold; font-size:1.2rem;">
+                    ${u.name.charAt(0).toUpperCase()}
+                </div>
+                <div class="admin-item-info">
+                    <h3>${u.name}</h3>
+                    <p>${u.email}</p>
+                    <p style="font-size:0.8rem; color:#888;">ID: ${u._id}</p>
+                </div>
+            `;
+            contenedor.appendChild(div);
+        });
+    } catch (e) {
+        console.error(e);
+        contenedor.innerHTML = '<p style="text-align:center; color:red;">Error de conexión.</p>';
+    }
+}
+
+// 3. Cargar Tabla de Préstamos (Todos)
+async function cargarTablaPrestamos() {
+    const contenedor = document.getElementById('listaPrestamosAdmin');
+    const token = localStorage.getItem('token');
+    
+    contenedor.innerHTML = '<p style="text-align:center; padding:20px;">Cargando préstamos...</p>';
+
+    try {
+        // Usamos el endpoint /api/loans/all que vi en tu server.js para admin
+        const res = await fetch(`${API_URL}/api/loans/all`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Error al cargar préstamos');
+        const prestamos = await res.json();
+
+        contenedor.innerHTML = '';
+        if (prestamos.length === 0) {
+            contenedor.innerHTML = '<p style="text-align:center;">No hay préstamos activos.</p>';
+            return;
+        }
+
+        prestamos.forEach(p => {
+            const libro = p.book || { title: 'Libro no encontrado' };
+            // Si el populate de usuario no viene, mostramos el ID
+            const usuarioInfo = p.user ? (p.user.name || p.user) : 'Usuario desconocido';
+            const fecha = new Date(p.returnDate).toLocaleDateString();
+
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            div.innerHTML = `
+                <div style="width:50px; height:50px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:15px; font-size:1.5rem;">
+                    📅
+                </div>
+                <div class="admin-item-info">
+                    <h3>${libro.title}</h3>
+                    <p>Usuario: ${usuarioInfo}</p>
+                    <p style="font-size:0.8rem; color:#666;">Devolución: ${fecha} | ID Préstamo: ${p._id}</p>
+                </div>
+            `;
+            contenedor.appendChild(div);
+        });
+    } catch (e) {
+        console.error(e);
+        contenedor.innerHTML = '<p style="text-align:center; color:red;">Error de conexión.</p>';
+    }
+}
+
+// =========================================================
+// --- GUARDAR DATOS (SOBRESCRIBIR BOTONES "ALERT") ---
+// =========================================================
+
+// 4. Lógica para botón "Guardar" en Agregar Usuario
+// Buscamos el botón dentro del modal específico para asignarle la función real
+const btnGuardarUsuario = document.querySelector('#modalAgregarUsuario .btn-save-header');
+if (btnGuardarUsuario) {
+    btnGuardarUsuario.onclick = async function() {
+        // Obtenemos los inputs por orden ya que no tienen ID en el HTML
+        const inputs = document.querySelectorAll('#modalAgregarUsuario input');
+        const name = inputs[0].value;
+        const email = inputs[1].value;
+        const password = inputs[2].value;
+
+        if (!name || !email || !password) return alert("Todos los campos son obligatorios");
+
+        try {
+            // Usamos la ruta /register que ya existe en el back para crear usuarios
+            const res = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert("Usuario creado correctamente");
+                document.getElementById('modalAgregarUsuario').classList.add('hidden');
+                // Limpiar campos
+                inputs.forEach(i => i.value = '');
+                // Recargar tabla si estamos en ella
+                cargarTablaUsuarios();
+                cargarAdminDashboard(); // Actualizar contadores
+            } else {
+                alert("Error: " + data.msg);
+            }
+        } catch (e) { alert("Error de conexión"); }
+    };
+}
+
+// 5. Lógica para botón "Guardar" en Agregar Préstamo
+const btnGuardarPrestamo = document.querySelector('#modalAgregarPrestamo .btn-save-header');
+if (btnGuardarPrestamo) {
+    btnGuardarPrestamo.onclick = async function() {
+        const inputs = document.querySelectorAll('#modalAgregarPrestamo input');
+        const userId = inputs[0].value;
+        const bookId = inputs[1].value;
+        const token = localStorage.getItem('token');
+
+        if (!userId || !bookId) return alert("Se requieren ambos IDs");
+
+        try {
+            // NOTA: Tu backend actual en /api/loans usa req.user.id (token).
+            // Para admin, lo ideal sería pasar el userId en el body.
+            // Enviamos ambos para intentar compatibilidad.
+            const res = await fetch(`${API_URL}/api/loans`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ bookId, userId }) 
+            });
+
+            if (res.ok) {
+                alert("Préstamo creado");
+                document.getElementById('modalAgregarPrestamo').classList.add('hidden');
+                inputs.forEach(i => i.value = '');
+                cargarTablaPrestamos();
+                cargarAdminDashboard();
+            } else {
+                const data = await res.json();
+                alert("Error: " + (data.msg || "No se pudo crear"));
+            }
+        } catch (e) { alert("Error de conexión"); }
+    };
+}
