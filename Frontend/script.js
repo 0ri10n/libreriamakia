@@ -3,41 +3,50 @@ const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000' 
     : 'https://libreriamakia-3p4u.onrender.com';
 
-// ELEMENTOS DEL DOM
+// ELEMENTOS PRINCIPALES
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
-// --- NAVEGACIÓN INICIAL ---
-document.getElementById('btnGoToLogin')?.addEventListener('click', () => {
-    document.getElementById('landing-options').classList.add('hidden'); 
-    loginForm.classList.remove('hidden');  
-});
-
-document.getElementById('btnGoToRegister')?.addEventListener('click', () => {
-    document.getElementById('landing-options').classList.add('hidden');
-    registerForm.classList.remove('hidden');
-});
-
-// --- NAVEGACIÓN PANEL USUARIO ---
+// --- 1. NAVEGACIÓN DE PESTAÑAS (USUARIO) ---
+// Arregla el problema de "Mis Libros" y el cambio de secciones
 document.getElementById('btnMisLibros')?.addEventListener('click', () => {
-    document.getElementById('btnMisLibros').classList.add('active');
-    document.getElementById('btnInicio').classList.remove('active');
-    document.querySelector('.hero-section').classList.add('hidden');
-    document.querySelector('.catalog-section').classList.add('hidden');
-    document.getElementById('loans-section').classList.remove('hidden');
+    activarSeccionUsuario('loans-section', 'btnMisLibros');
     cargarMisPrestamos();
 });
 
 document.getElementById('btnInicio')?.addEventListener('click', () => {
-    document.getElementById('btnInicio').classList.add('active');
-    document.getElementById('btnMisLibros').classList.remove('active');
+    activarSeccionUsuario('catalog-section', 'btnInicio');
     document.querySelector('.hero-section').classList.remove('hidden');
-    document.querySelector('.catalog-section').classList.remove('hidden');
-    document.getElementById('loans-section').classList.add('hidden');
     cargarCatalogo();
 });
 
-// --- NAVEGACIÓN PANEL ADMIN (BOTONES Y TABLAS) ---
+function activarSeccionUsuario(idSeccion, idBoton) {
+    // Gestionar botones activos
+    document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(idBoton)?.classList.add('active');
+    
+    // Ocultar todas las secciones de contenido
+    document.querySelector('.hero-section').classList.add('hidden');
+    document.querySelector('.catalog-section').classList.add('hidden');
+    document.getElementById('loans-section').classList.add('hidden');
+    
+    // Mostrar la elegida
+    document.getElementById(idSeccion).classList.remove('hidden');
+}
+
+// --- 2. LÓGICA DE CATEGORÍAS (FILTRADO) ---
+// Detecta el clic en las etiquetas (Terror, Fantasía, etc.)
+document.getElementById('containerCategorias')?.addEventListener('click', (e) => {
+    if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        const cat = e.target.dataset.cat; // Usa el atributo data-cat del HTML
+        cargarCatalogo('', cat);
+    }
+});
+
+// --- 3. PANEL ADMINISTRATIVO (CAMBIO DE TABLAS) ---
+// Entrar y Salir del Panel Admin
 document.getElementById('btnVerAdmin')?.addEventListener('click', () => {
     document.getElementById('user-dashboard').classList.add('hidden');
     document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -49,27 +58,24 @@ document.getElementById('btnVolverUsuario')?.addEventListener('click', () => {
     document.getElementById('user-dashboard').classList.remove('hidden');
 });
 
-// Switcher de tablas en Admin
-const tabs = {
-    'tabLibrosAdmin': 'listaLibrosAdmin',
-    'tabPrestamosAdmin': 'listaPrestamosAdmin',
-    'tabUsuariosAdmin': 'listaUsuariosAdmin'
-};
-
-Object.keys(tabs).forEach(tabId => {
-    document.getElementById(tabId)?.addEventListener('click', () => {
-        // Ocultar todas las listas
-        Object.values(tabs).forEach(id => document.getElementById(id).classList.add('hidden'));
-        // Mostrar la seleccionada
-        document.getElementById(tabs[tabId]).classList.remove('hidden');
-        
-        // Cargar datos específicos
-        if(tabId === 'tabPrestamosAdmin') cargarPrestamosAdmin();
-        if(tabId === 'tabUsuariosAdmin') cargarUsuariosAdmin();
-    });
+// Switcher de Tablas dentro de Admin (Libros / Préstamos / Usuarios)
+document.getElementById('tabLibrosAdmin')?.addEventListener('click', () => mostrarTablaAdmin('listaLibrosAdmin'));
+document.getElementById('tabPrestamosAdmin')?.addEventListener('click', () => {
+    mostrarTablaAdmin('listaPrestamosAdmin');
+    cargarPrestamosAdmin();
+});
+document.getElementById('tabUsuariosAdmin')?.addEventListener('click', () => {
+    mostrarTablaAdmin('listaUsuariosAdmin');
+    cargarUsuariosAdmin();
 });
 
-// --- GESTIÓN DE LIBROS (MODALES Y FORMULARIO) ---
+function mostrarTablaAdmin(idLista) {
+    const tablas = ['listaLibrosAdmin', 'listaPrestamosAdmin', 'listaUsuariosAdmin'];
+    tablas.forEach(id => document.getElementById(id).classList.add('hidden'));
+    document.getElementById(idLista).classList.remove('hidden');
+}
+
+// --- 4. GESTIÓN DE LIBROS (MODAL AGREGAR) ---
 document.getElementById('btnAgregarLibro')?.addEventListener('click', () => {
     document.getElementById('modalEditarLibro').classList.remove('hidden');
     document.getElementById('formEditarLibro').reset();
@@ -77,75 +83,25 @@ document.getElementById('btnAgregarLibro')?.addEventListener('click', () => {
     document.getElementById('modalAdminTitle').innerText = "Agregar Nuevo Libro";
 });
 
-window.abrirModalEditar = function(libro) {
-    document.getElementById('editBookId').value = libro._id;
-    document.getElementById('editTitle').value = libro.title;
-    document.getElementById('editAuthor').value = libro.author;
-    document.getElementById('editStock').value = libro.Stock;
-    document.getElementById('editImage').value = libro.image;
-    document.getElementById('modalAdminTitle').innerText = "Editar Libro";
-    document.getElementById('modalEditarLibro').classList.remove('hidden');
-};
+window.cerrarModalEditar = () => document.getElementById('modalEditarLibro').classList.add('hidden');
 
-document.getElementById('formEditarLibro')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('editBookId').value;
-    const token = localStorage.getItem('token');
-    const datos = {
-        title: document.getElementById('editTitle').value,
-        author: document.getElementById('editAuthor').value,
-        Stock: parseInt(document.getElementById('editStock').value),
-        image: document.getElementById('editImage').value,
-        category: "General" // Puedes agregar un input para esto si gustas
-    };
+// --- 5. FUNCIONES DE CARGA DE DATOS (FETCH) ---
 
+async function cargarCatalogo(busqueda = '', categoria = '') {
+    const grid = document.getElementById('gridLibros');
     try {
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/api/books/${id}` : `${API_URL}/api/books`;
-        
-        const res = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(datos)
-        });
-
-        if(res.ok) {
-            alert("Libro guardado con éxito");
-            document.getElementById('modalEditarLibro').classList.add('hidden');
-            cargarAdminDashboard();
-        }
-    } catch (e) { alert("Error al guardar libro"); }
-});
-
-// --- FUNCIONES DE CARGA DE DATOS (ADMIN) ---
-
-async function cargarAdminDashboard() {
-    const token = localStorage.getItem('token');
-    try {
-        const [resB, resL, resU] = await Promise.all([
-            fetch(`${API_URL}/api/books`),
-            fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }}),
-            fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
-        ]);
-
-        const libros = await resB.json();
-        document.getElementById('statLibros').innerText = libros.length;
-        document.getElementById('statPrestamos').innerText = (await resL.json()).length;
-        document.getElementById('statUsuarios').innerText = (await resU.json()).length;
-
-        const lista = document.getElementById('listaLibrosAdmin');
-        lista.innerHTML = '';
-        libros.forEach(l => {
-            const item = document.createElement('div');
-            item.className = 'admin-list-item';
-            item.innerHTML = `
-                <img src="${l.image}" style="width:40px; margin-right:10px;">
-                <div class="admin-item-info"><h3>${l.title}</h3><p>Stock: ${l.Stock}</p></div>
-                <button onclick='abrirModalEditar(${JSON.stringify(l)})' class="btn-icon-square">Editar</button>
-            `;
-            lista.appendChild(item);
-        });
-    } catch (e) { console.error(e); }
+        let url = `${API_URL}/api/books?busqueda=${busqueda}`;
+        if (categoria && categoria !== 'Todo') url += `&categoria=${categoria}`;
+        const res = await fetch(url);
+        const libros = await res.json();
+        grid.innerHTML = libros.map(l => `
+            <div class="book-card" onclick='abrirModalPrestamo(${JSON.stringify(l)})'>
+                <img src="${l.image || 'placeholder.jpg'}">
+                <h4>${l.title}</h4>
+                <p>${l.author}</p>
+            </div>
+        `).join('');
+    } catch (e) { console.error("Error catálogo", e); }
 }
 
 async function cargarUsuariosAdmin() {
@@ -160,17 +116,30 @@ async function cargarUsuariosAdmin() {
                 <span class="badge">${u.role}</span>
             </div>
         `).join('');
-    } catch (e) { lista.innerHTML = "Error al cargar usuarios"; }
+    } catch (e) { lista.innerHTML = "Error al cargar usuarios."; }
 }
 
-// --- LOGICA DE SESIÓN ---
-window.cerrarSesion = () => { localStorage.clear(); location.reload(); };
+async function cargarPrestamosAdmin() {
+    const lista = document.getElementById('listaPrestamosAdmin');
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }});
+        const loans = await res.json();
+        lista.innerHTML = loans.map(l => `
+            <div class="admin-list-item">
+                <div class="admin-item-info">
+                    <h3>${l.book?.title || 'Libro eliminado'}</h3>
+                    <p>Usuario: ${l.user?.email || 'N/A'}</p>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) { lista.innerHTML = "Error al cargar préstamos."; }
+}
 
-// Ejecutar carga inicial si ya está logueado
-document.addEventListener('DOMContentLoaded', () => {
-    if(localStorage.getItem('token')) {
-        document.querySelector('.main-container').classList.add('hidden');
-        document.getElementById('user-dashboard').classList.remove('hidden');
-        cargarCatalogo();
-    }
+// --- 6. AUTENTICACIÓN INICIAL ---
+document.getElementById('btnGoToLogin')?.addEventListener('click', () => {
+    document.getElementById('landing-options').classList.add('hidden'); 
+    loginForm.classList.remove('hidden');  
 });
+
+window.cerrarSesion = () => { localStorage.clear(); location.reload(); };
