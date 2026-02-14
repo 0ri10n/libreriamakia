@@ -194,3 +194,11 @@ app.post('/api/loans', proteger, async (req, res) => {
         res.status(400).json({ msg: "Error al procesar préstamo: " + err.message }); 
     }
 });
+
+// --- SOLUCIÓN PARA RENDER (EXPRESIÓN REGULAR PURA) ---
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
