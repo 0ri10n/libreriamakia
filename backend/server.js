@@ -30,28 +30,28 @@ app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   
   try {
-    // 1. Verificación manual de campos para evitar errores de validación del modelo
+    // 1. Validar que lleguen los datos
     if (!name || !email || !password) {
-        return res.status(400).json({ msg: 'Faltan datos obligatorios (nombre, email o password)' });
+        return res.status(400).json({ msg: 'Faltan datos obligatorios' });
     }
 
+    // 2. Verificar si el usuario ya existe
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
 
-    // 2. Intentar crear el usuario
+    // 3. Crear y guardar (La encriptación ocurre en el modelo)
     user = new User({ name, email, password });
-    
-    // 3. INTENTO DE GUARDADO CON LOG DE ERROR ESPECÍFICO
-    await user.save();
-    console.log(`✅ Usuario guardado exitosamente: ${email}`);
+    await user.save(); 
 
+    // 4. Generar Token
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
+    console.log(`✅ Usuario guardado en Atlas: ${email}`);
+
   } catch (err) {
-    // Este log aparecerá en Render y nos dirá si es error de llave duplicada o validación
-    console.error("❌ ERROR DETALLADO DE MONGO:", err); 
+    console.error("❌ ERROR AL REGISTRAR:", err.message);
     res.status(500).json({ msg: 'Error de base de datos: ' + err.message });
   }
 });

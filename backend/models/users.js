@@ -22,19 +22,17 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// ENCRIPTACIÓN DE CONTRASEÑAS
-// Corregido para usar bcrypt de forma más robusta antes de guardar
-UserSchema.pre('save', async function(next) { 
-  if (!this.isModified('password')) return next(); 
+// ENCRIPTACIÓN DE CONTRASEÑAS (Versión compatible sin error 'next')
+UserSchema.pre('save', async function() { 
+  if (!this.isModified('password')) return; 
 
   try {
-    const salt = await bcrypt.genSalt(10); // Generamos el salt por separado
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
-    next(error);
+    throw error; // Mongoose manejará este error automáticamente
   }
 });
 
-// Importante: El nombre del modelo debe ser 'User' (singular) por convención de Mongoose
+// Exportar como 'User'
 module.exports = mongoose.model('User', UserSchema);
