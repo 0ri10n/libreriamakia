@@ -5,7 +5,7 @@ const API_URL = window.location.hostname === 'localhost'
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
-// --- NAVEGACIÓN ORIGINAL REPARADA ---
+// NAVEGACIÓN DE VISTAS (Basado en tu script original)
 document.getElementById('btnGoToLogin')?.addEventListener('click', () => {
     document.getElementById('landing-options').classList.add('hidden'); 
     loginForm.classList.remove('hidden');  
@@ -21,16 +21,7 @@ document.getElementById('backFromLogin')?.addEventListener('click', () => {
     document.getElementById('landing-options').classList.remove('hidden'); 
 });
 
-// --- LÓGICA DE CATEGORÍAS (USUARIO) ---
-document.getElementById('containerCategorias')?.addEventListener('click', (e) => {
-    if (e.target.classList.contains('pill')) {
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        e.target.classList.add('active');
-        cargarCatalogo('', e.target.dataset.cat);
-    }
-});
-
-// --- LOGIN QUE SÍ AVANZA ---
+// LOGIN Y REGISTRO
 loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -56,6 +47,7 @@ loginForm?.addEventListener('submit', async (e) => {
     }
 });
 
+// FUNCIÓN PARA MOSTRAR EL CONTENIDO DESPUÉS DEL LOGIN
 function entrarAlSistema() {
     document.querySelector('.stars-background')?.classList.add('hidden');
     document.querySelector('.main-container')?.classList.add('hidden');
@@ -63,23 +55,14 @@ function entrarAlSistema() {
     cargarCatalogo();
 }
 
-// --- PANEL ADMIN (REPARADO) ---
-document.getElementById('btnVerAdmin')?.addEventListener('click', () => {
-    document.getElementById('user-dashboard').classList.add('hidden');
-    document.getElementById('admin-dashboard').classList.remove('hidden');
-    cargarAdminDashboard();
+// LÓGICA DE CATEGORÍAS
+document.getElementById('containerCategorias')?.addEventListener('click', (e) => {
+    if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        cargarCatalogo('', e.target.dataset.cat);
+    }
 });
-
-document.getElementById('tabUsuariosAdmin')?.addEventListener('click', () => {
-    activarTabAdmin('listaUsuariosAdmin');
-    cargarUsuariosAdmin();
-});
-
-function activarTabAdmin(idLista) {
-    const ids = ['listaLibrosAdmin', 'listaPrestamosAdmin', 'listaUsuariosAdmin'];
-    ids.forEach(id => document.getElementById(id)?.classList.add('hidden'));
-    document.getElementById(idLista)?.classList.remove('hidden');
-}
 
 async function cargarCatalogo(busqueda = '', categoria = '') {
     const grid = document.getElementById('gridLibros');
