@@ -28,21 +28,31 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
+  
   try {
+    // 1. Verificación manual de campos para evitar errores de validación del modelo
+    if (!name || !email || !password) {
+        return res.status(400).json({ msg: 'Faltan datos obligatorios (nombre, email o password)' });
+    }
+
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
 
+    // 2. Intentar crear el usuario
     user = new User({ name, email, password });
+    
+    // 3. INTENTO DE GUARDADO CON LOG DE ERROR ESPECÍFICO
     await user.save();
+    console.log(`✅ Usuario guardado exitosamente: ${email}`);
 
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     
     res.status(201).json({ token, msg: 'Usuario registrado con éxito' });
-    console.log(`✅ Usuario guardado: ${email}`);
   } catch (err) {
-    console.error("❌ Error en registro:", err.message);
-    res.status(500).json({ msg: 'Error de base de datos' });
+    // Este log aparecerá en Render y nos dirá si es error de llave duplicada o validación
+    console.error("❌ ERROR DETALLADO DE MONGO:", err); 
+    res.status(500).json({ msg: 'Error de base de datos: ' + err.message });
   }
 });
 

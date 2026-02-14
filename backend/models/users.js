@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: [true, 'El email es obligatorio'],
-    unique: true // Evita correos duplicados
+    unique: true 
   },
   password: { 
     type: String, 
@@ -17,22 +17,24 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'], // Solo permite estos dos valores
-    default: 'user' // Por defecto todos son clientes normales
+    enum: ['user', 'admin'], 
+    default: 'user' 
   }
 });
 
-// ENCRIPTACIÓN DE CONTRASEÑAS //
+// ENCRIPTACIÓN DE CONTRASEÑAS
+// Corregido para usar bcrypt de forma más robusta antes de guardar
 UserSchema.pre('save', async function(next) { 
   if (!this.isModified('password')) return next(); 
 
   try {
-    const salt = await bcrypt.hash(this.password, 10); // Simplificado
-    this.password = salt;
+    const salt = await bcrypt.genSalt(10); // Generamos el salt por separado
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
     next(error);
   }
 });
 
-module.exports = mongoose.model('Users', UserSchema);
+// Importante: El nombre del modelo debe ser 'User' (singular) por convención de Mongoose
+module.exports = mongoose.model('User', UserSchema);
