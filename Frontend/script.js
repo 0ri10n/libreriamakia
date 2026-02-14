@@ -1,7 +1,7 @@
 // URL de API corregida para Render
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000' 
-    : 'https://libreriamakia-j7w6.onrender.com/';
+    : 'https://libreriamakia-j7w6.onrender.com';
 
 // ELEMENTOS DEL DOM
 const landingOptions = document.getElementById('landing-options');
