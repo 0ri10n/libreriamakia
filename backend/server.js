@@ -161,7 +161,7 @@ app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
         
-        const userId = req.body.userId || req.user.id;
+        const userId = req.body.userId || req.user.id || req.user._id;
 
         // 1. Buscar el libro primero para verificar si existe y si tiene Stock
         const book = await Book.findById(bookId);
@@ -193,11 +193,11 @@ app.post('/api/loans', proteger, async (req, res) => {
             returnDate: fechaDevolucion
         });
         
-        await loan.save(); // Guardar el préstamo
+        await loan.save(); 
 
-        // 5. IMPORTANTE: Restar 1 al Stock del libro
-        book.Stock = book.Stock - 1;
-        await book.save(); // Guardar el libro actualizado
+        
+        await Book.findByIdAndUpdate(bookId, { $inc: { Stock: -1 } });
+        await book.save(); 
 
         res.status(201).json(loan);
 
