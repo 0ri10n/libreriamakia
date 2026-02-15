@@ -156,7 +156,15 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     }
 });
 // --- RUTAS DE PRÉSTAMOS (USUARIO) ---
+app.get('/api/loans', proteger, async (req, res) => {
+    try {
 
+        res.json(loans);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Error al obtener tus préstamos" });
+    }
+});
 app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
