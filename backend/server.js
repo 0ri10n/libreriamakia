@@ -158,7 +158,9 @@ app.get('/api/loans/all', proteger, async (req, res) => {
 // --- RUTAS DE PRÉSTAMOS (USUARIO) ---
 app.get('/api/loans', proteger, async (req, res) => {
     try {
-
+        // CORRECCIÓN: Buscar los préstamos del usuario y traer los datos del libro
+        const loans = await Loan.find({ user: req.user.id }).populate('book');
+        
         res.json(loans);
     } catch (err) {
         console.error(err);
