@@ -205,7 +205,7 @@ app.post('/api/loans', proteger, async (req, res) => {
     }
 });
 
-// --- RUTAS DE DEVOLUCIÓN 
+// -- RUTAS DE DEVOLUCIÓN 
 app.put('/api/loans/return/:id', proteger, async (req, res) => {
     try {
         const loan = await Loan.findById(req.params.id);
