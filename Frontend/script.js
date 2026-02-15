@@ -335,10 +335,10 @@ async function cargarMisPrestamos() {
 
             const accionHTML = p.status === 'active' 
                 ? `<button class="btn-return" onclick="devolverLibro('${p._id}')">Devolver ahora</button>` 
-                : `<p style="color: #2e7d32; font-weight: bold; margin-top:10px;">✅ Libro entregado</p>`;
+                : `<p style="color: #2e7d32; font-weight: bold; margin-top:10px;"> Libro entregado</p>`;
 
             const multaTexto = p.fine > 0 
-                ? `<p style="color: #d32f2f; font-weight: bold; margin-top:5px;">⚠️ Multa acumulada: $${p.fine}</p>` 
+                ? `<p style="color: #d32f2f; font-weight: bold; margin-top:5px;"> Multa acumulada: $${p.fine}</p>` 
                 : '';
 
             const card = document.createElement('div');
