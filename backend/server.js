@@ -248,3 +248,55 @@ app.delete('/api/loans/:id', proteger, async (req, res) => {
         res.json({ msg: "Préstamo eliminado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// Devolver prestamo
+app.put('/api/loans/return/:id', proteger, async (req, res) => {
+    try {
+        const loanId = req.params.id;
+
+        // 1. Buscar el préstamo
+        const loan = await Loan.findById(loanId);
+        
+        if (!loan) {
+            return res.status(404).json({ msg: "Préstamo no encontrado" });
+        }
+
+        // 2. Verificar si ya fue devuelto
+        if (loan.status === 'returned') {
+            return res.status(400).json({ msg: "Este libro ya fue devuelto anteriormente." });
+        }
+
+        // --- VALIDACIÓN DE LOS 3 DÍAS ---
+        const fechaPrestamo = new Date(loan.loanDate);
+        const fechaHoy = new Date();
+
+        // Restamos las fechas (resultado en milisegundos)
+        const diferenciaTiempo = fechaHoy.getTime() - fechaPrestamo.getTime();
+        
+        // Convertimos a días: (1000ms * 60s * 60min * 24h)
+        const diasTranscurridos = diferenciaTiempo / (1000 * 3600 * 24);
+
+        // Si han pasado menos de 3 días, bloqueamos la devolución
+        if (diasTranscurridos < 3) {
+            const diasFaltantes = Math.ceil(3 - diasTranscurridos);
+            return res.status(400).json({ 
+                msg: `Política de Biblioteca: Debes conservar el libro mínimo 3 días. Faltan ${diasFaltantes} día(s) para poder devolverlo.` 
+            });
+        }
+        // --------------------------------
+
+        // 3. Actualizar el préstamo a "devuelto"
+        loan.status = 'returned';
+        loan.actualReturnDate = fechaHoy;
+        await loan.save();
+
+        // 4. Devolver Stock al libro (+1)
+        await Book.findByIdAndUpdate(loan.book, { $inc: { Stock: 1 } });
+
+        res.json({ msg: "Libro devuelto exitosamente. ¡Gracias!", loan });
+
+    } catch (err) {
+        console.error("Error al devolver:", err);
+        res.status(500).json({ msg: "Error del servidor al procesar devolución." });
+    }
+});

@@ -338,15 +338,15 @@ async function cargarMisPrestamos() {
             card.innerHTML = `
                 <img src="${libro.image || 'placeholder.jpg'}" alt="${libro.title}">
                 <div class="loan-info">
-                    <h3>${libro.title}</h3>
-                    <p class="loan-desc">${libro.description || ''}</p>
-                    <div class="loan-meta">
-                        <span style="display: flex; align-items: center; gap: 5px; color: #555;">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span> 
-                            Devolver: ${fecha}
-                        </span>
-                        <span class="status-badge" style="margin-top:5px;">Activo</span>
+                <h3>${libro.title}</h3>
+                <p class="loan-desc">${libro.description || ''}</p>
+                <div class="loan-meta">
+                    <span>Devolver: ${new Date(p.returnDate).toLocaleDateString()}</span>
+                    <span class="status-badge">${p.status === 'active' ? 'Activo' : 'Devuelto'}</span>
                     </div>
+                    ${p.status === 'active' 
+                        ? `<button class="btn-return" onclick="devolverLibro('${p._id}')">Devolver ahora</button>` 
+                        : `<p> Devuelto</p>`}
                 </div>`;
             lista.appendChild(card);
         });
@@ -355,6 +355,44 @@ async function cargarMisPrestamos() {
         lista.innerHTML = '<p style="text-align:center; color:red;">Error de conexión al cargar préstamos.</p>';
     }
 }
+
+// --- LÓGICA PARA DEVOLVER LIBRO (INTEGRANTE 5) ---
+window.devolverLibro = async (loanId) => {
+    // 1. Confirmación visual simple
+    if (!confirm("¿Deseas devolver este libro a la biblioteca?")) return;
+
+    const token = localStorage.getItem('token');
+
+    try {
+        // 2. Petición PUT al servidor
+        const res = await fetch(`${API_URL}/api/loans/return/${loanId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // CASO ÉXITO: El servidor aprobó la devolución
+            alert("✅ " + data.message); // "Libro devuelto exitosamente"
+            cargarMisPrestamos(); // Recargamos la lista para que el botón desaparezca
+            
+            if (typeof cargarCatalogo === 'function') cargarCatalogo(); 
+
+        } else {
+            // CASO ERROR: Aquí caerá la restricción de los 3 días
+            // El backend manda status 400 y el mensaje de "Faltan X días"
+            alert("⚠️ AVISO DE BIBLIOTECA:\n" + (data.message || data.msg));
+        }
+
+    } catch (error) {
+        console.error("Error devolución:", error);
+        alert("Error de conexión al intentar devolver.");
+    }
+};
 
 // --- FUNCIONES DEL PANEL DE ADMINISTRADOR ---
 

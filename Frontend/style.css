@@ -1772,3 +1772,21 @@ h2, .admin-controls h2, .catalog-section h2 {
         justify-content: flex-start;
     }
 }
+
+/* Botón de devolver en la tarjeta */
+.btn-return {
+    background-color: #f3e5f5;
+    color: #8a4f9e;
+    border: 1px solid #8a4f9e;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.btn-return:hover {
+    background-color: #8a4f9e;
+    color: white;
+}
