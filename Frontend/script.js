@@ -449,9 +449,47 @@ window.confirmarBorradoMasivo = async function() {
 // 5. Funciones visuales para botones pendientes (Préstamos/Usuarios)
 window.mostrarFormAgregarPrestamo = () => document.getElementById('modalAgregarPrestamo').classList.remove('hidden');
 window.mostrarFormAgregarUsuario = () => document.getElementById('modalAgregarUsuario').classList.remove('hidden');
-window.confirmarBorradoMasivoPrestamos = () => alert("Función de borrado masivo de préstamos no implementada.");
-window.confirmarBorradoMasivoUsuarios = () => alert("Función de borrado masivo de usuarios no implementada.");
+// --- LÓGICA DE BORRADO MASIVO (USUARIOS Y PRÉSTAMOS) ---
 
+window.confirmarBorradoMasivoPrestamos = async () => {
+    const checkboxes = document.querySelectorAll('.select-prestamo:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
+    
+    if (ids.length === 0) return alert("Selecciona al menos un préstamo para borrar.");
+    if (!confirm(`¿Eliminar ${ids.length} préstamos?`)) return;
+
+    const token = localStorage.getItem('token');
+    
+    for (const id of ids) {
+        try {
+            await fetch(`${API_URL}/api/loans/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) { console.error(e); }
+    }
+    cargarTablaPrestamos(); // Refrescar lista
+};
+
+window.confirmarBorradoMasivoUsuarios = async () => {
+    const checkboxes = document.querySelectorAll('.select-usuario:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
+    
+    if (ids.length === 0) return alert("Selecciona al menos un usuario para borrar.");
+    if (!confirm(`¿Eliminar ${ids.length} usuarios? Esta acción no se puede deshacer.`)) return;
+
+    const token = localStorage.getItem('token');
+
+    for (const id of ids) {
+        try {
+            await fetch(`${API_URL}/api/users/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) { console.error(e); }
+    }
+    cargarTablaUsuarios(); // Refrescar lista
+};
 // --- PERFIL DE USUARIO Y TEMAS ---
 
 window.abrirModalPerfil = function() {
@@ -623,6 +661,7 @@ async function cargarTablaUsuarios() {
             const div = document.createElement('div');
             div.className = 'admin-list-item';
             div.innerHTML = `
+                <input type="checkbox" class="select-usuario" data-id="${u._id}" style="margin-right:15px; transform: scale(1.2);">
                 <div style="width:50px; height:50px; background:#e0ccff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:15px; color:#4a0072; font-weight:bold; font-size:1.2rem;">
                     ${u.name.charAt(0).toUpperCase()}
                 </div>
@@ -684,6 +723,7 @@ async function cargarTablaPrestamos() {
             const div = document.createElement('div');
             div.className = 'admin-list-item';
             div.innerHTML = `
+                <input type="checkbox" class="select-prestamo" data-id="${p._id}" style="margin-right:15px; transform: scale(1.2);">
                 <div style="width:50px; height:50px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:15px; color:#166534;">
                     <span class="material-symbols-outlined" style="font-size: 28px;">calendar_month</span>
                 </div>

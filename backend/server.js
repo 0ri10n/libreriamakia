@@ -228,3 +228,23 @@ app.get(/.*/, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+
+// --- RUTAS DE ELIMINACIÓN ADMIN (NUEVAS) ---
+
+// 1. Eliminar Usuario
+app.delete('/api/users/:id', proteger, async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ msg: "Usuario eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// 2. Eliminar Préstamo
+app.delete('/api/loans/:id', proteger, async (req, res) => {
+    try {
+        await Loan.findByIdAndDelete(req.params.id);
+        // Opcional: Si borras el préstamo, podrías devolver el Stock al libro, 
+        // pero por simplicidad administrativa, solo borramos el registro.
+        res.json({ msg: "Préstamo eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
