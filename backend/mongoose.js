@@ -14,13 +14,20 @@ const connectDB = async () => {
       dbName: 'LibreriaMakia' 
     });
 
-    console.log('✅ Conexión exitosa a MongoDB Atlas: LibreriaMakia');
+    console.log('Conexión exitosa a MongoDB Atlas: LibreriaMakia');
   } catch (err) {
-    console.error('❌ Error de conexión:', err.message);
+    console.error(' Error de conexión:', err.message);
+
     if (err.message.includes('IP not whitelisted')) {
-      console.log('👉 ACCIÓN: Agrega 0.0.0.0/0 en Network Access de Atlas');
+      console.log('ACCIÓN: Agrega 0.0.0.0/0 en Network Access de Atlas');
     }
-    process.exit(1);
+
+    // --- No matar el proceso si estamos en test ---
+    if (process.env.NODE_ENV !== 'test') {
+        process.exit(1);
+    } else {
+        console.log(' Aviso: Falló la conexión en modo TEST, pero el proceso continúa.');
+    }
   }
 };
 

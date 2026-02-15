@@ -23,6 +23,8 @@ app.use(express.json());
 
 // Servir archivos estáticos del Frontend
 app.use(express.static(path.join(__dirname, '../Frontend')));
+app.use(express.static(path.join(__dirname, '../')));
+
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
@@ -54,7 +56,7 @@ app.post('/register', async (req, res) => {
         msg: 'Usuario registrado con éxito' 
     });
     } catch (err) {
-        console.error("❌ ERROR AL REGISTRAR:", err.message);
+        console.error("ERROR AL REGISTRAR:", err.message);
         res.status(500).json({ msg: 'Error de base de datos: ' + err.message });
     }
     });
@@ -289,7 +291,7 @@ app.put('/api/loans/return/:id', proteger, async (req, res) => {
         // 4. Devolver Stock al libro (+1)
         await Book.findByIdAndUpdate(loan.book, { $inc: { Stock: 1 } });
 
-        res.json({ msg: "Libro devuelto exitosamente. ¡Gracias!", loan });
+        res.json({ mensaje: "Libro devuelto exitosamente. ¡Gracias!", loan });
 
     } catch (err) {
         console.error("Error al devolver:", err);
@@ -297,15 +299,7 @@ app.put('/api/loans/return/:id', proteger, async (req, res) => {
     }
 });
 
-// --- SOLUCIÓN PARA RENDER  ---
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
-
-// --- RUTAS DE ELIMINACIÓN ADMIN (NUEVAS) ---
+// --- RUTAS DE ELIMINACIÓN ADMIN ---
 
 // 1. Eliminar Usuario
 app.delete('/api/users/:id', proteger, async (req, res) => {
@@ -324,3 +318,25 @@ app.delete('/api/loans/:id', proteger, async (req, res) => {
         res.json({ msg: "Préstamo eliminado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+
+// --- SOLUCIÓN PARA RENDER  ---
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+});
+
+app.use((err, req, res, next) => {
+    console.error("ERROR CRÍTICO DETECTADO:", err.stack);
+    res.status(500).json({ 
+        msg: "Lo sentimos, hubo un problema interno en el servidor de Makia.",
+        error: process.env.NODE_ENV === 'development' ? err.message : {}
+    });
+});
+
+if (process.env.NODE_ENV !== 'test') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+}
+
+// --- EXPORTACIÓN PARA JEST---
+module.exports = app;
