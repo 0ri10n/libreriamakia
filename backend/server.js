@@ -160,12 +160,11 @@ app.get('/api/loans/all', proteger, async (req, res) => {
 app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
-        
-        // CORRECCIÓN 1: Definir userId de forma segura (token o body) y usarlo consistentemente
-        const userId = req.body.userId || req.user.id || req.user._id;
+
+        const userId = req.user.id; 
 
         if (!userId) {
-            return res.status(401).json({ msg: "Error de autenticación: Usuario no identificado." });
+            return res.status(401).json({ msg: "Usuario no identificado. Inicie sesión nuevamente." });
         }
 
         // 1. Buscar el libro
