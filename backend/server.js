@@ -167,6 +167,7 @@ app.get('/api/loans', proteger, async (req, res) => {
         res.status(500).json({ msg: "Error al obtener tus préstamos" });
     }
 });
+
 app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
@@ -176,6 +177,16 @@ app.post('/api/loans', proteger, async (req, res) => {
         if (!userId) {
             return res.status(401).json({ msg: "Error de autenticación: No se identificó al usuario." });
         }
+
+            const prestamosPendientes = await Loan.find({ user: userId, status: 'active' });
+            const tieneAtrasos = prestamosPendientes.some(p => new Date() > new Date(p.returnDate));
+            const tieneMultas = prestamosPendientes.some(p => p.fine > 0);
+
+            if (tieneAtrasos || tieneMultas) {
+                return res.status(403).json({ 
+                    msg: "Solicitud denegada: Tienes libros atrasados o multas pendientes de pago." 
+                });
+            }
 
         // 2. Buscar el libro y validar existencia
         const book = await Book.findById(bookId);
@@ -190,7 +201,7 @@ app.post('/api/loans', proteger, async (req, res) => {
         }
 
         // 4. Verificar si ya tiene el libro prestado (Evita duplicados)
-        const prestamoExistente = await Loan.findOne({ user: userId, book: bookId });
+        const prestamoExistente = await Loan.findOne({ user: userId, book: bookId, status: 'active' });
         if (prestamoExistente) {
             return res.status(400).json({ msg: "Ya tienes este libro en préstamo." });
         }
@@ -272,6 +283,7 @@ app.put('/api/loans/return/:id', proteger, async (req, res) => {
         // 3. Actualizar el préstamo a "devuelto"
         loan.status = 'returned';
         loan.actualReturnDate = fechaHoy;
+        loan.fine = multaCalculada;
         await loan.save();
 
         // 4. Devolver Stock al libro (+1)
