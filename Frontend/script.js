@@ -331,23 +331,35 @@ async function cargarMisPrestamos() {
 
         prestamos.forEach(p => {
             const libro = p.book; // Ya sabemos que no es null por el filtro
-            const fecha = new Date(p.returnDate).toLocaleDateString();
-            
+            const fechaFormateada = new Date(p.returnDate).toLocaleDateString();
+
+            const accionHTML = p.status === 'active' 
+                ? `<button class="btn-return" onclick="devolverLibro('${p._id}')">Devolver ahora</button>` 
+                : `<p style="color: #2e7d32; font-weight: bold; margin-top:10px;">✅ Libro entregado</p>`;
+
+            const multaTexto = p.fine > 0 
+                ? `<p style="color: #d32f2f; font-weight: bold; margin-top:5px;">⚠️ Multa acumulada: $${p.fine}</p>` 
+                : '';
+
             const card = document.createElement('div');
             card.className = 'loan-card';
+
             card.innerHTML = `
                 <img src="${libro.image || 'placeholder.jpg'}" alt="${libro.title}">
                 <div class="loan-info">
-                <h3>${libro.title}</h3>
-                <p class="loan-desc">${libro.description || ''}</p>
-                <div class="loan-meta">
-                    <span>Devolver: ${new Date(p.returnDate).toLocaleDateString()}</span>
-                    <span class="status-badge">${p.status === 'active' ? 'Activo' : 'Devuelto'}</span>
+                    <h3>${libro.title}</h3>
+                    <p class="loan-desc">${libro.description || 'Sin descripción'}</p>
+                    <div class="loan-meta">
+                        <span style="display: flex; align-items: center; gap: 5px; color: #555;">
+                             <span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span>
+                             Límite: ${fechaFormateada}
+                        </span>
+                        <span class="status-badge ${p.status === 'active' ? 'urgent' : ''}">
+                            ${p.status === 'active' ? 'En Curso' : 'Finalizado'}
+                        </span>
                     </div>
-                    ${p.status === 'active' 
-                        ? `<button class="btn-return" onclick="devolverLibro('${p._id}')">Devolver ahora</button>` 
-                        : `<p> Devuelto</p>`}
-                </div>`;
+                    ${multaTexto}
+                    ${accionHTML} </div>`;
             lista.appendChild(card);
         });
     } catch (e) {

@@ -221,34 +221,6 @@ app.post('/api/loans', proteger, async (req, res) => {
     }
 });
 
-// --- SOLUCIÓN PARA RENDER (EXPRESIÓN REGULAR PURA) ---
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
-
-// --- RUTAS DE ELIMINACIÓN ADMIN (NUEVAS) ---
-
-// 1. Eliminar Usuario
-app.delete('/api/users/:id', proteger, async (req, res) => {
-    try {
-        await User.findByIdAndDelete(req.params.id);
-        res.json({ msg: "Usuario eliminado" });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// 2. Eliminar Préstamo
-app.delete('/api/loans/:id', proteger, async (req, res) => {
-    try {
-        await Loan.findByIdAndDelete(req.params.id);
-        // Opcional: Si borras el préstamo, podrías devolver el Stock al libro, 
-        // pero por simplicidad administrativa, solo borramos el registro.
-        res.json({ msg: "Préstamo eliminado" });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
 // Devolver prestamo
 app.put('/api/loans/return/:id', proteger, async (req, res) => {
     try {
@@ -283,7 +255,19 @@ app.put('/api/loans/return/:id', proteger, async (req, res) => {
                 msg: `Política de Biblioteca: Debes conservar el libro mínimo 3 días. Faltan ${diasFaltantes} día(s) para poder devolverlo.` 
             });
         }
-        // --------------------------------
+
+        const fechaLimite = new Date(loan.returnDate);
+        let multaCalculada = 0;
+
+        if (fechaHoy > fechaLimite) {
+            // Calculamos la diferencia de tiempo en milisegundos
+            const diferenciaMs = fechaHoy - fechaLimite;
+            // Convertimos a días (redondeando hacia arriba cualquier fracción de día)
+            const diasRetraso = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+            
+            // Tarifa: $10 MXN por día
+            multaCalculada = diasRetraso * 10;
+        }
 
         // 3. Actualizar el préstamo a "devuelto"
         loan.status = 'returned';
@@ -299,4 +283,32 @@ app.put('/api/loans/return/:id', proteger, async (req, res) => {
         console.error("Error al devolver:", err);
         res.status(500).json({ msg: "Error del servidor al procesar devolución." });
     }
+});
+
+// --- SOLUCIÓN PARA RENDER  ---
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+
+// --- RUTAS DE ELIMINACIÓN ADMIN (NUEVAS) ---
+
+// 1. Eliminar Usuario
+app.delete('/api/users/:id', proteger, async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ msg: "Usuario eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// 2. Eliminar Préstamo
+app.delete('/api/loans/:id', proteger, async (req, res) => {
+    try {
+        await Loan.findByIdAndDelete(req.params.id);
+        // Opcional: Si borras el préstamo, podrías devolver el Stock al libro, 
+        // pero por simplicidad administrativa, solo borramos el registro.
+        res.json({ msg: "Préstamo eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
