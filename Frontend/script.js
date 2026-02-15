@@ -356,7 +356,7 @@ async function cargarMisPrestamos() {
     }
 }
 
-// --- LÓGICA PARA DEVOLVER LIBRO (INTEGRANTE 5) ---
+// --- LÓGICA PARA DEVOLVER LIBRO  ---
 window.devolverLibro = async (loanId) => {
     if (!confirm("¿Deseas devolver este libro a la biblioteca?")) return;
 
@@ -371,28 +371,38 @@ window.devolverLibro = async (loanId) => {
             }
         });
 
-        const data = await res.json();
+
+        const text = await res.text();
+        let data;
+        
+        try {
+            data = JSON.parse(text); 
+        } catch (e) {
+
+            console.error("Respuesta no válida del servidor:", text);
+            throw new Error(`Error del servidor (${res.status}): No se recibió una respuesta válida.`);
+        }
 
         if (res.ok) {
-            // CASO ÉXITO: El servidor aprobó la devolución
-            alert("✅ " + data.message); // "Libro devuelto exitosamente"
-            cargarMisPrestamos(); // Recargamos la lista para que el botón desaparezca
-            
+
+            alert("✅ " + (data.message || data.mensaje || "Libro devuelto exitosamente"));
+            cargarMisPrestamos(); 
             if (typeof cargarCatalogo === 'function') cargarCatalogo(); 
 
         } else {
+
             alert("⚠️ AVISO DE BIBLIOTECA:\n" + (data.message || data.msg));
         }
 
     } catch (error) {
-        console.error("Error devolución:", error);
-        alert("Error de conexión al intentar devolver.");
+
+        alert(error.message || "Error de conexión al intentar devolver.");
     }
 };
 
 window.mostrarFormAgregarLibro = function() {
     document.getElementById('formEditarLibro').reset();
-    document.getElementById('editBookId').value = ''; // ID vacío indica creación
+    document.getElementById('editBookId').value = ''; 
     document.getElementById('modalAdminTitle').innerText = "Agregar Libro";
     document.getElementById('previewEdit').innerHTML = '';
     document.getElementById('modalEditarLibro').classList.remove('hidden');
