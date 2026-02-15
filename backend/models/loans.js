@@ -16,10 +16,11 @@ const LoanSchema = new mongoose.Schema({
     required: true, 
     default: Date.now 
   },
+
   returnDate: { 
     type: Date, 
     required: true 
-  }
+  },
 
   actualReturnDate: {
     type: Date
