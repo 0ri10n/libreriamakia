@@ -205,6 +205,33 @@ app.post('/api/loans', proteger, async (req, res) => {
     }
 });
 
+// --- RUTAS DE DEVOLUCIÓN 
+app.put('/api/loans/return/:id', proteger, async (req, res) => {
+    try {
+        const loan = await Loan.findById(req.params.id);
+
+        if (!loan) {
+            return res.status(404).json({ msg: "Préstamo no encontrado." });
+        }
+
+        if (loan.status === 'returned') {
+            return res.status(400).json({ msg: "El libro ya fue devuelto anteriormente." });
+        }
+
+        loan.status = 'returned';
+        loan.actualReturnDate = new Date();
+        await loan.save();
+
+        await Book.findByIdAndUpdate(loan.book, { $inc: { Stock: 1 } });
+
+        res.json({ msg: "Libro devuelto exitosamente." });
+
+    } catch (err) {
+        console.error("Error devolución:", err);
+        res.status(500).json({ msg: "Error del servidor al procesar devolución." });
+    }
+});
+
 // --- SOLUCIÓN PARA RENDER 
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
