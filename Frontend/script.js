@@ -445,7 +445,7 @@ document.getElementById('formEditarLibro').addEventListener('submit', async (e) 
             alert(id ? "Libro actualizado" : "Libro creado");
             window.cerrarModalEditar();
             cargarAdminDashboard(); // Refrescar la tabla
-            cargarCatalogo(); // Refrescar el catálogo del usuario
+            cargarCatalogo(); 
         } else {
             const err = await res.json();
             alert("Error: " + (err.error || err.msg));
