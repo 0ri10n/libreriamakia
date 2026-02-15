@@ -161,36 +161,36 @@ app.post('/api/loans', proteger, async (req, res) => {
     try {
         const { bookId } = req.body;
 
-        const userId = req.user.id; 
+        const userId = req.body.userId || (req.user && (req.user.id || req.user._id));
 
         if (!userId) {
-            return res.status(401).json({ msg: "Usuario no identificado. Inicie sesión nuevamente." });
+            return res.status(401).json({ msg: "Error de autenticación: No se identificó al usuario." });
         }
 
-        // 1. Buscar el libro
+        // 2. Buscar el libro y validar existencia
         const book = await Book.findById(bookId);
         
         if (!book) {
             return res.status(404).json({ msg: "El libro no existe." });
         }
 
-        // 2. Validar Stock
+        // 3. Validar Stock
         if (book.Stock < 1) {
             return res.status(400).json({ msg: "El libro está agotado." });
         }
 
-        // 3. Verificar si ya tiene el libro prestado (usando la variable userId corregida)
+        // 4. Verificar si ya tiene el libro prestado (Evita duplicados)
         const prestamoExistente = await Loan.findOne({ user: userId, book: bookId });
         if (prestamoExistente) {
             return res.status(400).json({ msg: "Ya tienes este libro en préstamo." });
         }
 
-        // 4. Calcular Fechas
+        // 5. Calcular Fechas (Fecha actual y devolución en 15 días)
         const fechaPrestamo = new Date();
         const fechaDevolucion = new Date();
         fechaDevolucion.setDate(fechaPrestamo.getDate() + 15); 
 
-        // 5. Crear el préstamo
+        // 6. Crear el objeto Préstamo
         const loan = new Loan({ 
             user: userId, 
             book: bookId,
@@ -200,14 +200,14 @@ app.post('/api/loans', proteger, async (req, res) => {
         
         await loan.save(); 
 
-        // 6. CORRECCIÓN 2: Actualización atómica del stock (Más seguro que book.save)
+        // 7. CORRECCIÓN: Actualización atómica del stock (Más seguro y evita errores de versión)
         await Book.findByIdAndUpdate(bookId, { $inc: { Stock: -1 } });
 
         res.status(201).json(loan);
 
     } catch (err) { 
-        console.error("Error préstamo:", err);
-        res.status(500).json({ msg: "Error al procesar préstamo: " + err.message }); 
+        console.error("Error al crear préstamo:", err); // Log para depuración en render
+        res.status(500).json({ msg: "Error interno al procesar préstamo: " + err.message }); 
     }
 });
 
