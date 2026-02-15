@@ -1,9 +1,7 @@
-// URL de API corregida para Render
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000' 
     : '';
 
-// ELEMENTOS DEL DOM
 const landingOptions = document.getElementById('landing-options');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
@@ -32,7 +30,6 @@ document.getElementById('backFromRegister').addEventListener('click', () => {
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 
-// Login
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -59,7 +56,6 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Registro (Añadido)
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('regName').value;
@@ -106,12 +102,10 @@ function entrarAlSistema() {
     cargarCatalogo();
 }
 
-window.cerrarSesion = () => { 
+window.cerrarSesion = () => {
     localStorage.clear(); 
     location.reload(); 
 };
-
-// --- GESTIÓN DEL CATÁLOGO ---
 
 async function cargarCatalogo(busqueda = '', categoria = '') {
     const grid = document.getElementById('gridLibros');
@@ -139,7 +133,6 @@ async function cargarCatalogo(busqueda = '', categoria = '') {
     } catch (e) { grid.innerHTML = 'Error al cargar libros.'; }
 }
 
-// --- DASHBOARD ADMIN (ACTUALIZA CONTADORES Y TABLAS) ---
 async function cargarAdminDashboard() {
     const lista = document.getElementById('listaLibrosAdmin');
     const token = localStorage.getItem('token');
@@ -158,9 +151,8 @@ async function cargarAdminDashboard() {
         return cerrarSesion();
     }
 
-    console.log("Conectando a:", API_URL); // Para depuración
+    console.log("Conectando a:", API_URL);
 
-    // 1. CARGAR USUARIOS
     fetch(`${API_URL}/api/users`, { headers: { 'Authorization': `Bearer ${token}` }})
         .then(res => res.json())
         .then(users => { 
@@ -168,8 +160,7 @@ async function cargarAdminDashboard() {
         })
         .catch(e => console.error("Error usuarios:", e));
 
-    // 2. CARGAR PRÉSTAMOS (Esto es lo que fallaba)
-        fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
+    fetch(`${API_URL}/api/loans/all`, { headers: { 'Authorization': `Bearer ${token}` }})
                 .then(res => {
                     if(!res.ok) throw new Error(`Error ${res.status}: No se pudieron cargar préstamos`);
                     return res.json();
@@ -186,7 +177,6 @@ async function cargarAdminDashboard() {
                     if(statPrestamos) statPrestamos.innerText = "0";
                 });
 
-    // 3. CARGAR LIBROS (Tabla Principal)
     try {
         const res = await fetch(`${API_URL}/api/books`);
         const libros = await res.json();
@@ -225,8 +215,6 @@ async function cargarAdminDashboard() {
         lista.innerHTML = '<p style="text-align:center; color:red">Error de conexión.</p>';
     }
 }
-
-// --- FUNCIONES DE ADMINISTRACIÓN (EDITAR/ELIMINAR) ---
 
 window.abrirModalEditar = function(libro) {
     const modal = document.getElementById('modalEditarLibro');
@@ -370,13 +358,11 @@ async function cargarMisPrestamos() {
 
 // --- LÓGICA PARA DEVOLVER LIBRO (INTEGRANTE 5) ---
 window.devolverLibro = async (loanId) => {
-    // 1. Confirmación visual simple
     if (!confirm("¿Deseas devolver este libro a la biblioteca?")) return;
 
     const token = localStorage.getItem('token');
 
     try {
-        // 2. Petición PUT al servidor
         const res = await fetch(`${API_URL}/api/loans/return/${loanId}`, {
             method: 'PUT',
             headers: {
@@ -395,8 +381,6 @@ window.devolverLibro = async (loanId) => {
             if (typeof cargarCatalogo === 'function') cargarCatalogo(); 
 
         } else {
-            // CASO ERROR: Aquí caerá la restricción de los 3 días
-            // El backend manda status 400 y el mensaje de "Faltan X días"
             alert("⚠️ AVISO DE BIBLIOTECA:\n" + (data.message || data.msg));
         }
 
@@ -406,9 +390,6 @@ window.devolverLibro = async (loanId) => {
     }
 };
 
-// --- FUNCIONES DEL PANEL DE ADMINISTRADOR ---
-
-// 1. Mostrar formulario para AGREGAR (Limpia los campos)
 window.mostrarFormAgregarLibro = function() {
     document.getElementById('formEditarLibro').reset();
     document.getElementById('editBookId').value = ''; // ID vacío indica creación
@@ -417,18 +398,15 @@ window.mostrarFormAgregarLibro = function() {
     document.getElementById('modalEditarLibro').classList.remove('hidden');
 };
 
-// 2. Cerrar el modal de edición
 window.cerrarModalEditar = function() {
     document.getElementById('modalEditarLibro').classList.add('hidden');
 };
 
-// 3. Lógica para GUARDAR (Crear o Editar Libro)
 document.getElementById('formEditarLibro').addEventListener('submit', async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const id = document.getElementById('editBookId').value;
     
-    // Recolectar datos del formulario
     const datos = {
         title: document.getElementById('editTitle').value,
         author: document.getElementById('editAuthor').value,
@@ -439,7 +417,7 @@ document.getElementById('formEditarLibro').addEventListener('submit', async (e) 
         description: document.getElementById('editDescription').value
     };
 
-    // Determinar si es Crear (POST) o Editar (PUT)
+
     const url = id ? `${API_URL}/api/books/${id}` : `${API_URL}/api/books`;
     const metodo = id ? 'PUT' : 'POST';
 
@@ -465,7 +443,6 @@ document.getElementById('formEditarLibro').addEventListener('submit', async (e) 
     } catch (e) { alert("Error de conexión al guardar."); }
 });
 
-// 4. Borrado Masivo (Checkboxes)
 window.confirmarBorradoMasivo = async function() {
     const checkboxes = document.querySelectorAll('.select-item:checked');
     const ids = Array.from(checkboxes).map(cb => cb.dataset.id);
@@ -476,7 +453,6 @@ window.confirmarBorradoMasivo = async function() {
     const token = localStorage.getItem('token');
     let errores = 0;
 
-    // Procesar borrado secuencial (uno tras otro)
     for (const id of ids) {
         try {
             await fetch(`${API_URL}/api/books/${id}`, {
@@ -496,10 +472,8 @@ window.confirmarBorradoMasivo = async function() {
     cargarAdminDashboard(); // Refrescar la lista
 };
 
-// 5. Funciones visuales para botones pendientes (Préstamos/Usuarios)
 window.mostrarFormAgregarPrestamo = () => document.getElementById('modalAgregarPrestamo').classList.remove('hidden');
 window.mostrarFormAgregarUsuario = () => document.getElementById('modalAgregarUsuario').classList.remove('hidden');
-// --- LÓGICA DE BORRADO MASIVO (USUARIOS Y PRÉSTAMOS) ---
 
 window.confirmarBorradoMasivoPrestamos = async () => {
     const checkboxes = document.querySelectorAll('.select-prestamo:checked');
@@ -544,7 +518,6 @@ window.confirmarBorradoMasivoUsuarios = async () => {
 
 window.abrirModalPerfil = function() {
     const email = localStorage.getItem('userEmail') || 'Usuario';
-    // Extraer nombre del email para mostrar algo amigable
     const nombre = email.split('@')[0];
     
     document.getElementById('profileName').innerText = nombre.charAt(0).toUpperCase() + nombre.slice(1);
@@ -553,11 +526,9 @@ window.abrirModalPerfil = function() {
 };
 
 window.cambiarTema = function(primary, secondary) {
-    // Cambia las variables CSS globales
     document.documentElement.style.setProperty('--primary-color', primary);
     document.documentElement.style.setProperty('--secondary-color', secondary);
     
-    // Guarda la preferencia para la próxima vez
     localStorage.setItem('themePrimary', primary);
     localStorage.setItem('themeSecondary', secondary);
 };
@@ -574,38 +545,30 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- LÓGICA DE PRÉSTAMOS (FALTANTE) ---
 // ==========================================
 
-// 1. Botón "Solicitar Préstamo" (En la sección Mis Libros)
-// Como para pedir un préstamo necesitas elegir un libro específico,
-// este botón te lleva al catálogo para que selecciones uno.
 const btnPedir = document.getElementById('btnPedirPrestamo');
 if (btnPedir) {
     btnPedir.addEventListener('click', () => {
-        // Simula clic en Inicio para ir al catálogo
         document.getElementById('btnInicio').click();
         alert("Por favor, selecciona un libro del catálogo para solicitarlo.");
     });
 }
 
-// 2. Variables del Modal
 const modalPrestamo = document.getElementById('modalPrestamo');
 const viewForm = document.getElementById('viewLoanForm');
 const viewSuccess = document.getElementById('viewLoanSuccess');
 const viewError = document.getElementById('viewLoanError');
 
-// 3. Función para ABRIR el modal (Se llama desde las tarjetas de libros)
 window.abrirModalPrestamo = function(libro) {
     // Validar Stock antes de abrir
     if (libro.Stock !== undefined && libro.Stock < 1) {
         return alert("Lo sentimos, este libro está agotado.");
     }
     
-    // Mostrar el modal y el formulario
     modalPrestamo.classList.remove('hidden');
     viewForm.classList.remove('hidden');
     viewSuccess.classList.add('hidden');
     viewError.classList.add('hidden');
 
-    // Llenar los datos del libro en el maquetado
     document.getElementById('loanBookImage').src = libro.image || 'placeholder.jpg';
     document.getElementById('loanBookTitle').value = libro.title;
     document.getElementById('loanBookId').value = libro._id;
@@ -617,12 +580,10 @@ window.abrirModalPrestamo = function(libro) {
     document.getElementById('loanReturnDate').value = dev.toLocaleDateString('es-MX');
 };
 
-// 4. Función para CERRAR el modal
 window.cerrarModalPrestamo = function() {
     modalPrestamo.classList.add('hidden');
 };
 
-// 5. Confirmar Solicitud (Enviar a la Base de Datos)
 document.getElementById('btnConfirmarSolicitud').addEventListener('click', async () => {
     const bookId = document.getElementById('loanBookId').value;
     const token = localStorage.getItem('token');
@@ -660,19 +621,12 @@ document.getElementById('btnConfirmarSolicitud').addEventListener('click', async
     }
 });
 
-// =========================================================
-// --- LÓGICA DE PESTAÑAS Y TABLAS DEL ADMINISTRADOR ---
-// =========================================================
 
-// 1. Lógica de Pestañas (Tabs)
-// Esto hace que al hacer clic en "Préstamos" o "Usuarios", cambie la vista
 document.querySelectorAll('.tab-link').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Quitar clase active de todos
         document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         
-        // Activar el actual
         btn.classList.add('active');
         const tabId = btn.getAttribute('data-tab');
         document.getElementById(`tab-${tabId}`).classList.add('active');
@@ -684,7 +638,6 @@ document.querySelectorAll('.tab-link').forEach(btn => {
     });
 });
 
-// 2. Cargar Tabla de Usuarios
 async function cargarTablaUsuarios() {
     const contenedor = document.getElementById('listaUsuariosAdmin');
     const token = localStorage.getItem('token');
@@ -729,7 +682,6 @@ async function cargarTablaUsuarios() {
     }
 }
 
-// 3. Cargar Tabla de Préstamos (Todos)
 async function cargarTablaPrestamos() {
     const contenedor = document.getElementById('listaPrestamosAdmin');
     const token = localStorage.getItem('token');
@@ -791,18 +743,10 @@ async function cargarTablaPrestamos() {
     }
 }
 
-// =========================================================
-// --- GUARDAR DATOS (SOBRESCRIBIR BOTONES "ALERT") ---
-// =========================================================
-
-// 4. Lógica para botón "Guardar" en Agregar Usuario
-// Buscamos el botón dentro del modal específico para asignarle la función real
 const btnGuardarUsuario = document.querySelector('#modalAgregarUsuario .btn-save-header');
 
 if (btnGuardarUsuario) {
-    // Sobrescribimos el 'onclick' del HTML (el alert) con esta función real
     btnGuardarUsuario.onclick = async function() {
-        // Obtenemos los inputs por posición (0: Nombre, 1: Email, 2: Password)
         const inputs = document.querySelectorAll('#modalAgregarUsuario input');
         const name = inputs[0].value;
         const email = inputs[1].value;
@@ -836,13 +780,11 @@ if (btnGuardarUsuario) {
     };
 }
 
-// 5. Lógica para botón "Guardar" en Agregar Préstamo
 const btnGuardarPrestamo = document.querySelector('#modalAgregarPrestamo .btn-save-header');
 
 if (btnGuardarPrestamo) {
     btnGuardarPrestamo.onclick = async function() {
         const inputs = document.querySelectorAll('#modalAgregarPrestamo input');
-        // El input 0 es UserID, el 1 es BookID
         const userId = inputs[0].value;
         const bookId = inputs[1].value;
         const token = localStorage.getItem('token');
@@ -895,10 +837,8 @@ function actualizarContador() {
     const textoSinEspacios = textoOriginal.replace(/\s/g, ''); 
     const cantidad = textoSinEspacios.length;
 
-    // Actualizar el texto del contador
     divContador.innerText = `${cantidad} / 100`;
 
-    // Cambiar color si se pasa del límite
     if (cantidad > 100) {
         divContador.style.color = 'red';
         divContador.style.fontWeight = 'bold';
@@ -908,41 +848,26 @@ function actualizarContador() {
     }
 }
 
-// Escuchar cada tecla que el usuario presiona
 if (txtDescripcion) {
     txtDescripcion.addEventListener('input', actualizarContador);
 }
 
-// --- MODIFICACIÓN DE LOS MODALES PARA RESETEAR EL CONTADOR ---
-
-// Sobrescribimos la función de abrir modal para que calcule el contador al abrir
 const funcionOriginalEditar = window.abrirModalEditar;
 window.abrirModalEditar = function(libro) {
-    // Llamamos a la función original para que llene los datos
     funcionOriginalEditar(libro);
-    // Inmediatamente actualizamos el contador con los datos cargados
     actualizarContador();
 };
 
 const funcionOriginalAgregar = window.mostrarFormAgregarLibro;
 window.mostrarFormAgregarLibro = function() {
     funcionOriginalAgregar();
-    // Reseteamos el contador a 0 al abrir para agregar
     actualizarContador();
 };
 
 // --- VALIDACIÓN AL GUARDAR (IMPIDE ENVIAR SI SE PASA) ---
 
 const formEdicion = document.getElementById('formEditarLibro');
-// Interceptamos el envío para validar antes de mandar al servidor
 if (formEdicion) {
-    // Guardamos la referencia del submit original si existiera, pero aquí actuamos antes
-    const btnGuardar = formEdicion.querySelector('.btn-save-header'); // O el botón submit
-    
-    // Nota: Tu código actual usa un eventListener 'submit' en el formulario.
-    // Vamos a inyectar la validación dentro de ese listener existente.
-    // Como no puedo modificar el código de arriba, agregamos una validación extra:
-    
     formEdicion.addEventListener('submit', (e) => {
         const texto = document.getElementById('editDescription').value;
         const sinEspacios = texto.replace(/\s/g, '').length;
@@ -953,16 +878,14 @@ if (formEdicion) {
             alert(`La descripción es muy larga (${sinEspacios} caracteres sin espacios). El máximo es 100.`);
             return false;
         }
-    }, true); // UseCapture para ejecutarse primero
+    }, true);
 }
 
-// --- LÓGICA DE BÚSQUEDA FILTRADA PARA ADMIN ---
 const inputBusquedaAdmin = document.getElementById('txtBusquedaAdmin');
 
 if (inputBusquedaAdmin) {
     inputBusquedaAdmin.addEventListener('input', (e) => {
         const termino = e.target.value.toLowerCase();
-        // Buscamos todos los elementos de la lista actual (sean libros, usuarios o préstamos)
         const items = document.querySelectorAll('.admin-list-item');
 
         items.forEach(item => {
@@ -971,9 +894,9 @@ if (inputBusquedaAdmin) {
             const textoSecundario = item.querySelector('.admin-item-info').innerText.toLowerCase();
             
             if (textoPrincipal.includes(termino) || textoSecundario.includes(termino)) {
-                item.style.display = 'flex'; // Mostrar si coincide
+                item.style.display = 'flex';
             } else {
-                item.style.display = 'none'; // Ocultar si no coincide
+                item.style.display = 'none';
             }
         });
     });

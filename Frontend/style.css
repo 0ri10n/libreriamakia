@@ -1,4 +1,3 @@
-/* Reset y Configuración Base */
 * {
     margin: 0;
     padding: 0;
@@ -16,7 +15,6 @@ body {
     align-items: center;
 }
 
-/* Fondo de Estrellas Animado (Contenedor) */
 .stars-background {
     position: fixed;
     top: 0;
@@ -24,11 +22,10 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-color: #05050a; /* Color de fondo base (negro profundo) */
+    background-color: #05050a;
     overflow: hidden;
 }
 
-/* Ajuste para que el dibujo (Canvas) ocupe todo el espacio */
 .stars-background canvas {
     display: block;
     width: 100%;
@@ -41,7 +38,6 @@ body {
     max-width: 800px;
 }
 
-/* Header MAKIA */
 .subtitle {
     font-size: 2.5rem;
     letter-spacing: 4px;
@@ -56,12 +52,11 @@ body {
 }
 
 .slogan {
-    font-size: 1.6rem; /* Frase de abajo */
+    font-size: 1.6rem;
     margin-bottom: 3.5rem;
     opacity: 0.9;
 }
 
-/* Formulario */
 .auth-container {
     background: rgba(255, 255, 255, 0.05);
     padding: 3.5rem;
@@ -80,7 +75,6 @@ body {
     font-size: 1rem !important; 
 }
 
-/* Botones */
 .button-group {
     display: flex;
     gap: 25px;
@@ -105,7 +99,6 @@ body {
     background: rgba(255, 255, 255, 0.4);
 }
 
-/* Clase para ocultar elementos */
 .hidden {
     display: none !important;
 }
@@ -125,21 +118,18 @@ body {
     }
 }
 
-/* --- VISTA DE USUARIO (DASHBOARD) --- */
-
 #user-dashboard {
     display: flex;
     width: 100vw;
     height: 100vh;
-    background-color: #f8f9fa; /* Fondo gris muy claro */
-    color: #333; /* Texto oscuro para legibilidad */
+    background-color: #f8f9fa;
+    color: #333;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 100;
 }
 
-/* Sidebar Estilo Makia */
 .sidebar {
     width: 250px;
     background-color: white;
@@ -158,7 +148,6 @@ body {
     align-items: center; 
     gap: 12px;           
 }
-
 
 .nav-logo {
     width: 40px;       
@@ -194,7 +183,7 @@ body {
 }
 
 .menu-btn.active {
-    background-color: #8a4f9e; /* Morado Makia */
+    background-color: #8a4f9e;
     color: white;
 }
 
@@ -208,7 +197,7 @@ body {
 
 .user-header {
     display: flex;
-    justify-content: flex-end; /* Empuja el ícono de perfil a la derecha */
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
     margin-bottom: 25px;
@@ -216,7 +205,7 @@ body {
 }
 
 .user-profile-circle {
-    background-color: #8a4f9e; /* Morado Makia */
+    background-color: #8a4f9e;
     color: white;
     width: 45px;
     height: 45px;
@@ -229,30 +218,30 @@ body {
     box-shadow: 0 4px 10px rgba(138, 79, 158, 0.3);
 }
 
-/* Ajuste para que el buscador flote sobre el banner */
+
 .hero-card {
     position: relative;
-    height: 320px; /* Altura similar a la maqueta */
+    height: 320px;
     background: #05050a;
     border-radius: 30px;
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* Alinea el buscador hacia la parte inferior */
-    padding-bottom: 35px; /* Espacio desde el borde inferior del banner */
-    overflow: visible; /* Importante para que la sombra del buscador se vea */
+    align-items: flex-end;
+    padding-bottom: 35px;
+    overflow: visible;
 }
 
-/* Buscador flotante: Fidelidad absoluta */
+
 .search-container-overlay {
     position: absolute;
-    bottom: -35px; /* Posición exacta sobre el borde inferior */
+    bottom: -35px;
     width: 85%;
     max-width: 700px;
     background: white;
     border-radius: 50px;
     display: flex;
     padding: 10px 30px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.12); /* Sombra suave profesional */
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
     z-index: 20;
 }
 
@@ -262,7 +251,7 @@ body {
     outline: none;
     padding: 12px;
     font-size: 1.1rem;
-    font-family: 'Segoe UI', Tahoma, sans-serif; /* Tipografía limpia */
+    font-family: 'Segoe UI', Tahoma, sans-serif;
     background: transparent;
 }
 
@@ -284,7 +273,7 @@ body {
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 25px;
-    text-align: left; 
+    text-align: left;
 }
 
 
@@ -307,7 +296,7 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Segoe UI', sans-serif; 
+    font-family: 'Segoe UI', sans-serif;
 }
 
 .pill.active {
@@ -316,7 +305,6 @@ body {
     font-weight: 600;
 }
 
-/* Grilla de Libros */
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -366,9 +354,7 @@ body {
     margin-top: 5px;
 }
 
-/* --- VISTA MIS LIBROS --- */
 
-/* Cabecera de la sección (Título + Botón) */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -384,8 +370,8 @@ body {
 }
 
 .btn-action {
-    background-color: #e0ccff; /* Lila claro */
-    color: #4a0072; /* Morado oscuro */
+    background-color: #e0ccff;
+    color: #4a0072;
     border: none;
     padding: 12px 25px;
     border-radius: 8px;
@@ -399,7 +385,7 @@ body {
     background-color: #d1b3ff;
 }
 
-/* Lista de Tarjetas Horizontales */
+
 .loans-list {
     display: flex;
     flex-direction: column;
@@ -456,7 +442,7 @@ body {
 
 .status-badge {
     background-color: #f0fdf4;
-    color: #166534; /* Verde para "En progreso" */
+    color: #166534;
     padding: 4px 10px;
     border-radius: 20px;
     font-weight: 600;
@@ -468,14 +454,13 @@ body {
     color: #991b1b; 
 }
 
-/* --- ESTILOS DEL MODAL --- */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semitransparente */
+    background-color: rgba(0,0,0,0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -522,9 +507,8 @@ body {
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 15px;
-}   
+}
 
-/* --- ESTILOS DEL PANEL ADMINISTRADOR --- */
 .admin-container {
     background: white;
     padding: 30px;
@@ -561,9 +545,7 @@ textarea {
     resize: vertical;
 }
 
-/* ============================================ */
-/* PANEL DE ADMINISTRADOR */
-/* ============================================ */
+
 
 #admin-dashboard {
     width: 100vw;
@@ -583,7 +565,6 @@ textarea {
     margin: 0 auto;
 }
 
-/* Header del admin */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -597,7 +578,6 @@ textarea {
     font-weight: 700;
 }
 
-/* Tarjetas de estadísticas */
 .stats-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -626,7 +606,6 @@ textarea {
     font-weight: 500;
 }
 
-/* Controles (Título + Buscador) */
 .admin-controls {
     display: flex;
     justify-content: space-between;
@@ -666,7 +645,6 @@ textarea {
     color: #8a4f9e;
 }
 
-/* Tabs de navegación */
 .admin-tabs {
     display: flex;
     gap: 40px;
@@ -701,7 +679,6 @@ textarea {
     background-color: #8a4f9e;
 }
 
-/* Botones de acción */
 .admin-actions {
     display: flex;
     gap: 15px;
@@ -741,7 +718,7 @@ textarea {
     background-color: #6f3d7f;
 }
 
-/* Contenido de tabs */
+
 .tab-content {
     display: none;
 }
@@ -750,14 +727,12 @@ textarea {
     display: block;
 }
 
-/* Lista de items del admin */
 .admin-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Tarjeta de libro en admin */
 .admin-book-card {
     display: grid;
     grid-template-columns: 120px 1fr auto;
@@ -842,10 +817,6 @@ textarea {
     background-color: #ffcccc;
     color: #cc0000;
 }
-
-/* ============================================ */
-/* MODAL DE EDICIÓN DE LIBRO */
-/* ============================================ */
 
 .modal-content-admin {
     background: white;
@@ -999,10 +970,6 @@ textarea {
     background-color: #d0d0d0;
 }
 
-/* ============================================ */
-/* VISTA DE PRÉSTAMOS Y USUARIOS (Tablas) */
-/* ============================================ */
-
 .admin-table-card {
     background: white;
     border: 1px solid #e0e0e0;
@@ -1031,8 +998,6 @@ textarea {
     color: #888;
 }
 
-
-/* --- ESTILOS MODAL PRÉSTAMO AVANZADO --- */
 .modal-content-loan {
     background: white;
     width: 90%;
@@ -1043,7 +1008,6 @@ textarea {
     animation: fadeIn 0.3s;
 }
 
-/* Header (Barra superior) */
 .loan-header {
     padding: 15px 30px;
     border-bottom: 1px solid #eee;
@@ -1058,10 +1022,9 @@ textarea {
     color: #333;
 }
 
-.loan-header.success-bg { background-color: #f3e5f5; } /* Fondo lila éxito */
-.loan-header.error-bg { background-color: #fbecec; }   /* Fondo rojizo error */
+.loan-header.success-bg { background-color: #f3e5f5; }
+.loan-header.error-bg { background-color: #fbecec; }
 
-/* Botones del Header */
 .btn-back { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 .btn-cancel-loan {
     background: #8a4f9e; color: white; border: none;
@@ -1076,14 +1039,12 @@ textarea {
     padding: 8px 20px; border-radius: 5px; cursor: pointer;
 }
 
-/* Cuerpo del modal (2 columnas) */
 .loan-body {
     display: flex;
     padding: 40px;
     gap: 40px;
 }
 
-/* Columna Izquierda: Portada */
 .loan-book-cover img {
     width: 220px;
     height: 330px;
@@ -1092,7 +1053,6 @@ textarea {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* Columna Derecha: Formulario */
 .loan-details-form, .loan-details-text {
     flex: 1;
     display: flex;
@@ -1115,34 +1075,28 @@ textarea {
 
 .loan-details-form input {
     padding: 10px;
-    border: 1px solid #dcdcdc; /* Borde suave */
+    border: 1px solid #dcdcdc;
     border-radius: 6px;
     color: #555;
     font-family: 'Segoe UI', sans-serif;
     background: #fff;
 }
 
-/* Solo lectura para que parezca deshabilitado pero legible */
 .loan-details-form input[readonly] {
-    background-color: #fff; 
-    border-color: #d8b4e2; /* Borde lila suave como en la imagen */
+    background-color: #fff;
+    border-color: #d8b4e2;
     color: #8a4f9e;
 }
 
-/* Textos de Éxito/Error */
 .info-text { font-size: 0.9rem; color: #555; line-height: 1.5; margin-top: 15px; }
 .error-text { font-size: 0.95rem; color: #333; line-height: 1.5; }
 
-
-/* --- ESTILOS NUEVOS ADMIN (Diseño UI Moderno) --- */
-
 .admin-wrapper {
-    background-color: #fff; /* Fondo blanco limpio */
+    background-color: #fff;
     min-height: 100vh;
     padding: 20px 60px;
 }
 
-/* Estadísticas (Tarjetas Lilas Grandes) */
 .stats-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1151,7 +1105,7 @@ textarea {
 }
 
 .stat-card {
-    background-color: #e0ccff; /* Lila suave imagen */
+    background-color: #e0ccff;
     padding: 40px 20px;
     border-radius: 15px;
     text-align: center;
@@ -1161,7 +1115,6 @@ textarea {
 .stat-card h2 { font-size: 3.5rem; margin: 0; font-weight: 700; }
 .stat-card p { margin: 0; font-size: 0.9rem; opacity: 0.8; }
 
-/* Controles y Tabs */
 .admin-controls-header {
     display: flex;
     justify-content: space-between;
@@ -1208,10 +1161,9 @@ textarea {
     background-color: #ddd;
     width: 100%;
     margin-bottom: 30px;
-    margin-top: -2px; /* Pegado a los tabs */
+    margin-top: -2px;
 }
 
-/* Botones de Acción (Morados) */
 .action-bar {
     display: flex;
     justify-content: flex-end;
@@ -1240,15 +1192,14 @@ textarea {
     opacity: 0.9;
 }
 
-/* LISTA DE ITEMS (Diseño Horizontal Exacto) */
 .admin-list-item {
     display: flex;
     align-items: center;
-    padding: 25px 30px; /* Más espacio interno en cada fila */
+    padding: 25px 30px;
     border-bottom: 1px solid #eee;
     background: white;
-    margin-bottom: 10px; /* Separación entre filas */
-    border-radius: 12px; /* Bordes redondeados en cada fila */
+    margin-bottom: 10px;
+    border-radius: 12px;
     transition: background 0.2s;
 }
 
@@ -1302,15 +1253,12 @@ textarea {
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* --- ESTILOS HEADER MODAL ADMIN (Diseño 100% Fiel) --- */
-
 .modal-admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 10px;
-    /* border-bottom: 1px solid #f0f0f0; Opcional si quieres línea */
 }
 
 .header-left-group {
@@ -1322,7 +1270,7 @@ textarea {
 .btn-back-icon {
     background: none;
     border: none;
-    font-size: 2.5rem; /* Flecha grande */
+    font-size: 2.5rem;
     cursor: pointer;
     color: #333;
     line-height: 0.8;
@@ -1365,7 +1313,6 @@ textarea {
 
 .btn-save-header:hover { background-color: #c0c0c0; }
 
-/* Estilo para input con ícono (Link) */
 .input-with-icon {
     position: relative;
     width: 100%;
@@ -1373,8 +1320,8 @@ textarea {
 
 .input-with-icon input {
     width: 100%;
-    padding-left: 40px; /* Espacio para el ícono a la izquierda */
-    border: 1px solid #8a4f9e; /* Borde morado como en la imagen */
+    padding-left: 40px;
+    border: 1px solid #8a4f9e;
     color: #8a4f9e;
 }
 
@@ -1384,22 +1331,14 @@ textarea {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.2rem;
-    filter: hue-rotate(260deg); /* Truco para hacer el emoji morado */
+    filter: hue-rotate(260deg);
 }
 
-
-
-/* ========================================= */
-/* --- MOTOR DE TEMAS Y MODAL DE PERFIL --- */
-/* ========================================= */
-
 :root {
-    /* Color por defecto (Morado MAKIA) */
     --primary-color: #8a4f9e;
     --secondary-color: #e0ccff;
 }
 
-/* Sobreescribimos las clases existentes para usar las variables dinámicas */
 .btn-primary, .btn-purple-solid, .btn-cancel-header, .pill.active, .menu-btn.active {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
@@ -1415,7 +1354,7 @@ textarea {
 
 .btn-purple-outline, .btn-action {
     background-color: var(--secondary-color) !important;
-    color: #333 !important; /* Texto oscuro para legibilidad en colores claros */
+    color: #333 !important;
     font-weight: bold;
 }
 
@@ -1432,8 +1371,8 @@ textarea {
     background-color: var(--secondary-color) !important;
 }
 
-h2 { color: var(--primary-color); } /* Títulos generales */
-.admin-header h1, .section-header h2 { color: #1a1a1a; } /* Excepción títulos negros */
+h2 { color: var(--primary-color); }
+.admin-header h1, .section-header h2 { color: #1a1a1a; }
 
 .profile-info {
     text-align: center;
@@ -1486,18 +1425,12 @@ h2 { color: var(--primary-color); } /* Títulos generales */
 }
 .btn-logout:hover { background-color: #ffcdd2; }
 
-
-/* ======================================================= */
-/* --- CORRECCIÓN MAESTRA DE COLORES (Final) --- */
-/* ======================================================= */
-
 :root {
     --primary-color: #8a4f9e;
     --secondary-color: #e0ccff;
-    --text-on-primary: #ffffff; /* Variable para el color del texto */
+    --text-on-primary: #ffffff;
 }
 
-/* 1. Elementos con FONDO FUERTE (Usan color primario) */
 .btn-primary, 
 .btn-purple-solid, 
 .btn-cancel-header, 
@@ -1507,66 +1440,49 @@ h2 { color: var(--primary-color); } /* Títulos generales */
 .profile-avatar-large,
 .search-container-overlay button,
 .form-col-right label::after,
-#btnVolverUsuario { /* Forzamos el botón de regresar */
+#btnVolverUsuario {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
-    color: var(--text-on-primary) !important; /* Usamos la variable de texto */
+    color: var(--text-on-primary) !important;
 }
 
-/* 2. Elementos con FONDO SUAVE (Usan color secundario) */
 .btn-purple-outline, 
 .btn-action,
 .btn-icon-square,
 .loan-header.success-bg,
 .stat-card,
-.pill:hover, /* Filtros al pasar el mouse */
+.pill:hover,
 .admin-list-item > div[style*="width:50px"] {
     background-color: var(--secondary-color) !important;
-    color: #222 !important; /* Siempre oscuro para leerse bien */
+    color: #222 !important;
     border: none !important;
 }
 
-/* 3. Correcciones Específicas */
-/* Títulos y textos que deben tomar el color del tema */
-h2, .admin-controls h2, .catalog-section h2 { 
-    color: var(--primary-color) !important; 
-}
-
-/* Filtros inactivos (Fondo gris suave por defecto) */
 .pill {
     background-color: #f1f1f1 !important;
     color: #666 !important;
 }
 
-/* Excepciones de texto (Iconos y etiquetas sin fondo) */
 .search-container-overlay button,
 .form-col-right label::after {
     background-color: transparent !important;
     color: var(--primary-color) !important;
 }
 
-/* Corrección: Hacer que las tarjetas de estadísticas usen el color del tema */
 .stat-card {
-    background: var(--secondary-color) !important; /* Usa el color bajito dinámico */
-    color: #000 !important; /* Texto negro para que se lea */
+    background: var(--secondary-color) !important;
+    color: #000 !important;
 }
 
-/* Asegurar que los números dentro de las tarjetas sean negros */
 .stat-card h2 {
     color: #000 !important;
 }
 
-/* Asegurar que el subtítulo sea oscuro */
 .stat-card p {
     color: #333 !important;
 }
 
 
-/* ======================================================= */
-/* --- SISTEMA DE ANIMACIONES FLUIDAS (DASHBOARD) --- */
-/* ======================================================= */
-
-/* 1. Definición de movimientos */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -1593,91 +1509,67 @@ h2, .admin-controls h2, .catalog-section h2 {
     }
 }
 
-/* 2. Aplicar a las Secciones Principales */
-/* Cada vez que cambias entre Inicio y Mis Libros, la sección hará un suave zoom */
 .content-area section:not(.hidden) {
     animation: popIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* 3. Tarjetas de Libros y Préstamos (Base para la cascada) */
 .book-card, .loan-card {
-    opacity: 0; /* Empiezan invisibles */
+    opacity: 0;
     animation: fadeInUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Para el hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 4. Hover Elástico y Moderno */
 .book-card:hover, .loan-card:hover {
-    transform: translateY(-8px) scale(1.02); /* Se levanta y crece un poco */
-    box-shadow: 0 15px 30px rgba(138, 79, 158, 0.15); /* Sombra morada suave */
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(138, 79, 158, 0.15);
     z-index: 1;
 }
 
-/* 5. Modales con entrada de rebote */
 .modal-content, .modal-content-admin {
-    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote */
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 6. Botones reactivos (Micro-interacciones) */
 .btn-primary, .btn-action, .menu-btn, .pill, .color-btn {
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-primary:active, .btn-action:active, .color-btn:active {
-    transform: scale(0.95); /* Efecto de presionar */
+    transform: scale(0.95);
 }
 
-/* Pills (Filtros) */
 .pill:hover {
     transform: translateY(-2px);
 }
 
-
-/* ========================================= */
-/* --- AJUSTES MATERIAL SYMBOLS --- */
-/* ========================================= */
-
-/* Regla base para alinear iconos con texto */
 .material-symbols-outlined {
     vertical-align: middle;
-    font-size: 24px; /* Tamaño estándar */
+    font-size: 24px;
     line-height: 1;
 }
 
-/* Ajuste específico para botones del menú lateral */
 .menu-btn .material-symbols-outlined {
     margin-right: 8px;
     font-size: 22px;
 }
 
-/* Ajuste para botones de acción en admin (lápiz, basura) */
 .btn-icon-square .material-symbols-outlined {
     font-size: 20px;
 }
 
-/* Ajuste para el buscador */
 .search-container-overlay button .material-symbols-outlined {
     font-size: 28px;
 }
 
-
-/* ======================================================= */
-/* --- RESPONSIVE DESIGN (MÓVIL Y TABLET) --- */
-/* ======================================================= */
-
-/* TABLETS Y PANTALLAS MEDIANAS (Max 1024px) */
 @media (max-width: 1024px) {
     .main-title { font-size: 6rem; letter-spacing: 10px; }
-    .stats-cards { grid-template-columns: repeat(2, 1fr); } /* 2 columnas en vez de 3 */
+    .stats-cards { grid-template-columns: repeat(2, 1fr); }
     .admin-wrapper { padding: 20px; }
 }
 
-/* MÓVILES (Max 768px) */
 @media (max-width: 768px) {
 
-    /* 1. AJUSTES GENERALES */
     body {
-        overflow-y: auto; /* Permitir scroll vertical en móviles */
+        overflow-y: auto;
         height: auto;
         min-height: 100vh;
     }
@@ -1687,20 +1579,18 @@ h2, .admin-controls h2, .catalog-section h2 {
         padding: 20px 0;
     }
 
-    /* 2. PANTALLA DE LOGIN (Hacerla compacta) */
     .main-title { 
-        font-size: 4rem; /* Reducir drásticamente el tamaño */
+        font-size: 4rem;
         letter-spacing: 5px; 
     }
     .subtitle { font-size: 1.5rem; }
     .slogan { font-size: 1rem; margin-bottom: 2rem; }
     
     .auth-container {
-        padding: 2rem 1.5rem; /* Menos relleno */
+        padding: 2rem 1.5rem;
         border-radius: 25px;
     }
 
-    /* Botones uno debajo del otro para facilitar el toque */
     .button-group {
         flex-direction: column;
         gap: 15px;
@@ -1711,9 +1601,8 @@ h2, .admin-controls h2, .catalog-section h2 {
         font-size: 1.1rem;
     }
 
-    /* 3. DASHBOARD (Transformar Sidebar en Barra Superior) */
     #user-dashboard {
-        flex-direction: column; /* Apilar elementos verticalmente */
+        flex-direction: column;
         height: auto;
         min-height: 100vh;
     }
@@ -1724,48 +1613,44 @@ h2, .admin-controls h2, .catalog-section h2 {
         padding: 15px;
         border-right: none;
         border-bottom: 1px solid #eee;
-        flex-direction: row; /* Logo a la izq, menú a la derecha */
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
         position: sticky;
         top: 0;
-        z-index: 50; /* Que se quede arriba al scrollear */
+        z-index: 50;
     }
 
     .logo-area { margin-bottom: 0; }
-    .nav-logo { height: 40px; width: auto; } /* Ajustar logo */
+    .nav-logo { height: 40px; width: auto; }
 
     .menu-options {
-        flex-direction: row; /* Botones en fila */
+        flex-direction: row;
         gap: 10px;
     }
     
-    /* En móvil, ocultamos el texto del menú y dejamos solo iconos para ahorrar espacio */
     .menu-btn { padding: 10px; font-size: 0; } 
     .menu-btn span { margin: 0 !important; font-size: 24px !important; }
 
     .content-area {
         padding: 20px;
-        overflow: visible; /* Quitar scroll interno */
+        overflow: visible;
     }
 
-    /* 4. MODALES (Que quepan en pantalla) */
     .modal-content, .modal-content-admin {
         width: 95%;
         padding: 20px;
-        max-height: 85vh; /* Evitar que se salga de la pantalla */
-        overflow-y: auto; /* Scroll dentro del modal si es necesario */
+        max-height: 85vh;
+        overflow-y: auto;
     }
 
-    /* Arreglar el modal de Préstamo (Imagen arriba, info abajo) */
     #viewLoanForm > div {
         flex-direction: column;
         align-items: center;
     }
     #loanBookImage { width: 120px; margin-bottom: 20px; }
 
-    /* 5. ADMIN PANEL */
-    .stats-cards { grid-template-columns: 1fr; } /* Tarjetas una por una */
+    .stats-cards { grid-template-columns: 1fr; }
     
     .admin-controls-header {
         flex-direction: column;
@@ -1774,13 +1659,11 @@ h2, .admin-controls h2, .catalog-section h2 {
     }
     .search-box-rounded, .search-box-admin { width: 100%; }
     
-    /* Formulario de Admin en una sola columna */
     .form-row-admin {
         grid-template-columns: 1fr;
     }
     .preview-image { height: 200px; }
     
-    /* Navegación de Tabs scrolleable */
     .admin-tabs-nav {
         gap: 20px;
         overflow-x: auto;
@@ -1790,7 +1673,6 @@ h2, .admin-controls h2, .catalog-section h2 {
     }
 }
 
-/* Botón de devolver en la tarjeta */
 .btn-return {
     background-color: #f3e5f5;
     color: #8a4f9e;
