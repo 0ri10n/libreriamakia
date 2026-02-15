@@ -156,16 +156,6 @@ app.get('/api/loans/all', proteger, async (req, res) => {
     }
 });
 // --- RUTAS DE PRÉSTAMOS (USUARIO) ---
-app.get('/api/loans', proteger, async (req, res) => {
-    try {
-        // Busca préstamos donde el campo 'user' coincida con el ID del token
-        const loans = await Loan.find({ user: req.user.id }).populate('book');
-        res.json(loans);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ msg: "Error al obtener tus préstamos" });
-    }
-});
 
 app.post('/api/loans', proteger, async (req, res) => {
     try {
